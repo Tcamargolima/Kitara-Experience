@@ -8,89 +8,92 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 253 100% 99%;
-    --foreground: 264 47% 14%;
+    /* Circo MOSKINO Theme Colors */
+    --background: 180 35% 95%; /* Light cream/beige */
+    --foreground: 195 85% 15%; /* Deep teal blue */
 
-    --card: 0 0% 100%;
-    --card-foreground: 264 47% 14%;
+    --card: 45 85% 92%; /* Warm cream */
+    --card-foreground: 195 85% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 264 47% 14%;
+    --popover: 45 85% 92%;
+    --popover-foreground: 195 85% 15%;
 
-    --primary: 268 83% 23%;
-    --primary-foreground: 345 100% 98%;
+    --primary: 195 85% 25%; /* Circus teal green */
+    --primary-foreground: 45 95% 88%; /* Golden cream */
 
-    --secondary: 323 100% 94%;
-    --secondary-foreground: 264 47% 14%;
+    --secondary: 45 95% 75%; /* Bright golden yellow */
+    --secondary-foreground: 195 85% 15%;
 
-    --muted: 323 29% 91%;
-    --muted-foreground: 264 25% 55%;
+    --muted: 45 45% 85%;
+    --muted-foreground: 195 35% 45%;
 
-    --accent: 45 93% 85%;
-    --accent-foreground: 264 47% 14%;
+    --accent: 15 85% 55%; /* Circus red */
+    --accent-foreground: 45 95% 95%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 45 35% 80%;
+    --input: 45 35% 85%;
+    --ring: 195 85% 35%;
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* More rounded for circus theme */
 
-    --sidebar-background: 0 0% 98%;
+    /* Circus gradients and special colors */
+    --circus-gold: 45 95% 75%;
+    --circus-teal: 195 85% 25%;
+    --circus-red: 15 85% 55%;
+    --circus-blue: 210 85% 45%;
+    --circus-cream: 45 85% 92%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 45 85% 92%;
+    --sidebar-foreground: 195 85% 15%;
+    --sidebar-primary: 195 85% 25%;
+    --sidebar-primary-foreground: 45 95% 88%;
+    --sidebar-accent: 45 65% 85%;
+    --sidebar-accent-foreground: 195 85% 15%;
+    --sidebar-border: 45 35% 75%;
+    --sidebar-ring: 195 85% 35%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Circus Theme - Deeper blues with golden accents */
+    --background: 210 85% 8%; /* Deep circus blue */
+    --foreground: 45 95% 88%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 75% 12%;
+    --card-foreground: 45 95% 88%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 75% 12%;
+    --popover-foreground: 45 95% 88%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 45 95% 75%; /* Golden in dark mode */
+    --primary-foreground: 210 85% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 195 85% 35%; /* Teal accent */
+    --secondary-foreground: 45 95% 88%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 35% 25%;
+    --muted-foreground: 45 35% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 15 85% 55%; /* Circus red stays same */
+    --accent-foreground: 45 95% 95%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 210 35% 25%;
+    --input: 210 35% 20%;
+    --ring: 45 95% 75%;
+
+    --sidebar-background: 210 85% 8%;
+    --sidebar-foreground: 45 95% 88%;
+    --sidebar-primary: 45 95% 75%;
+    --sidebar-primary-foreground: 210 85% 8%;
+    --sidebar-accent: 210 35% 25%;
+    --sidebar-accent-foreground: 45 95% 88%;
+    --sidebar-border: 210 35% 20%;
+    --sidebar-ring: 45 95% 75%;
   }
 }
 
@@ -102,4 +105,73 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Circus MOSKINO Custom Styles */
+@layer components {
+  .circus-title {
+    @apply text-6xl font-black tracking-wider uppercase;
+    background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 12px hsl(var(--secondary) / 0.3);
+  }
+
+  .circus-button {
+    @apply relative overflow-hidden rounded-2xl font-bold text-lg px-8 py-4 transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent)) 60%);
+    box-shadow: 0 8px 25px hsl(var(--accent) / 0.4);
+  }
+
+  .circus-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px hsl(var(--accent) / 0.6);
+  }
+
+  .circus-card {
+    @apply relative rounded-3xl border-4 border-primary/20 backdrop-blur-sm;
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card)) 60%, hsl(var(--secondary) / 0.1));
+    box-shadow: 0 10px 30px hsl(var(--primary) / 0.15);
+  }
+
+  .circus-stars {
+    position: relative;
+  }
+
+  .circus-stars::before {
+    content: '✦ ✧ ★ ☆';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    font-size: 1.5rem;
+    color: hsl(var(--secondary));
+    opacity: 0.3;
+    animation: sparkle 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .circus-bg {
+    background: radial-gradient(circle at 30% 20%, hsl(var(--secondary) / 0.1), transparent 50%),
+                radial-gradient(circle at 80% 80%, hsl(var(--accent) / 0.1), transparent 50%),
+                radial-gradient(circle at 40% 60%, hsl(var(--primary) / 0.1), transparent 50%),
+                linear-gradient(135deg, hsl(var(--background)), hsl(var(--card)));
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1.1) rotate(180deg); opacity: 0.7; }
+}
+
+@keyframes circus-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }

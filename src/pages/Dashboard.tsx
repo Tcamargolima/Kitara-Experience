@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, LogOut, Sparkles, Ticket, QrCode, CreditCard, Settings } from "lucide-react";
+import { Tent, LogOut, Sparkles, Ticket, QrCode, CreditCard, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import TicketsTab from "@/components/dashboard/TicketsTab";
 import AccessTab from "@/components/dashboard/AccessTab";
@@ -46,10 +46,10 @@ const Dashboard = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen circus-bg flex items-center justify-center">
         <div className="text-center">
-          <Crown className="h-12 w-12 animate-pulse mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Carregando...</p>
+          <Tent className="h-12 w-12 animate-pulse mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground font-fredoka">Entrando no circo...</p>
         </div>
       </div>
     );
@@ -58,19 +58,19 @@ const Dashboard = () => {
   // Interface para clientes
   if (profile?.profile === 'cliente') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/20">
-        <header className="border-b bg-card/50 backdrop-blur-sm">
+      <div className="min-h-screen circus-bg">
+        <header className="border-b circus-card backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Crown className="h-10 w-10 text-primary" />
+                <Tent className="h-10 w-10 text-primary animate-pulse" />
                 <Sparkles className="h-3 w-3 text-accent absolute -top-0.5 -right-0.5 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  Alice Gate Pass
+                <h1 className="text-2xl font-bungee bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  MOSKINO
                 </h1>
-                <p className="text-sm text-muted-foreground">Portal do Cliente</p>
+                <p className="text-sm text-muted-foreground font-fredoka">🎪 Portal do Cliente</p>
               </div>
             </div>
             <div className="flex items-center gap-4">

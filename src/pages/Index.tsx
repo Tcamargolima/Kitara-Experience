@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, Sparkles, Calendar, Star } from "lucide-react";
+import { Tent, Sparkles, Calendar, Star, PartyPopper, Users, Ticket } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -28,88 +28,92 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen circus-bg">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/5 via-background to-accent/20 min-h-screen flex items-center">
+      <section className="relative circus-stars min-h-screen flex items-center">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="flex justify-center mb-12">
-              <div className="relative">
-                <Crown className="h-32 w-32 text-primary drop-shadow-lg" />
-                <Sparkles className="h-8 w-8 text-accent absolute -top-2 -right-2 animate-pulse" />
+            <div className="flex justify-center mb-12 relative">
+              <div className="relative animate-bounce-in">
+                <Tent className="h-32 w-32 text-primary drop-shadow-lg animate-pulse" />
+                <PartyPopper className="h-8 w-8 text-accent absolute -top-2 -right-2 animate-spin" />
                 <Sparkles className="h-6 w-6 text-secondary absolute -bottom-1 -left-1 animate-pulse delay-1000" />
+                <Star className="h-4 w-4 text-secondary absolute top-2 left-2 animate-pulse delay-500" />
               </div>
             </div>
             <div className="mb-8">
-              <h1 className="text-7xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent leading-tight">
-                Alice Gate Pass
+              <h1 className="circus-title font-bungee mb-6">
+                MOSKINO
               </h1>
-              <div className="w-32 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
+              <div className="w-48 h-2 bg-gradient-to-r from-secondary via-accent to-primary mx-auto rounded-full shadow-lg"></div>
+              <p className="text-xl font-fredoka font-medium text-primary mt-4 tracking-wide uppercase">
+                🎪 Grande Espetáculo Circense 🎪
+              </p>
             </div>
-            <p className="text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto font-medium">
-              Experience Entertainment Beyond Imagination
+            <p className="text-2xl text-foreground mb-8 leading-relaxed max-w-3xl mx-auto font-fredoka font-medium">
+              A Magia do Circo em suas Mãos!
             </p>
-            <p className="text-lg text-muted-foreground/80 mb-12 max-w-2xl mx-auto">
-              Everything you need for extraordinary events and unforgettable experiences
+            <p className="text-lg text-muted-foreground/80 mb-12 max-w-2xl mx-auto font-fredoka">
+              Ingressos para espetáculos únicos e inesquecíveis. Venha viver momentos mágicos no universo circense!
             </p>
             <div className="flex justify-center">
               <Button 
                 onClick={() => navigate("/auth")} 
                 size="lg"
-                className="text-lg px-8 py-6 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="circus-button font-fredoka font-bold text-xl px-12 py-6 text-background"
               >
-                Acessar Sistema
+                🎭 Entrar no Circo 🎭
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Merchandise Section */}
-      <section className="py-20 bg-muted/20">
+      {/* Attractions Section */}
+      <section className="py-20 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Curated Experiences
+            <h2 className="circus-title text-5xl font-bungee mb-6">
+              Atrações Espetaculares
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Discover exclusive events and magical experiences
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-fredoka font-medium">
+              Descubra as maravilhas que o Circo MOSKINO reserva para você
             </p>
           </div>
           
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-primary/20">
+            <Card className="circus-card group hover:shadow-xl transition-all duration-500 hover:-translate-y-4 hover:rotate-1">
               <CardHeader className="text-center pb-4">
-                <Sparkles className="h-16 w-16 mx-auto mb-4 text-primary group-hover:text-secondary transition-colors" />
-                <CardTitle className="text-xl">Exclusive Events</CardTitle>
+                <PartyPopper className="h-20 w-20 mx-auto mb-4 text-accent group-hover:animate-spin transition-all duration-500" />
+                <CardTitle className="text-2xl font-fredoka font-bold text-primary">Espetáculos Únicos</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-center">
-                  Limited access to the most sought-after entertainment experiences
+                <CardDescription className="text-center font-fredoka text-base leading-relaxed">
+                  Apresentações exclusivas com artistas renomados de todo o mundo
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-primary/20">
+            <Card className="circus-card group hover:shadow-xl transition-all duration-500 hover:-translate-y-4 hover:rotate-1">
               <CardHeader className="text-center pb-4">
-                <Calendar className="h-16 w-16 mx-auto mb-4 text-primary group-hover:text-secondary transition-colors" />
-                <CardTitle className="text-xl">Curated Calendar</CardTitle>
+                <Ticket className="h-20 w-20 mx-auto mb-4 text-secondary group-hover:animate-bounce transition-all duration-500" />
+                <CardTitle className="text-2xl font-fredoka font-bold text-primary">Ingressos Especiais</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-center">
-                  Handpicked events tailored to your taste for extraordinary moments
+                <CardDescription className="text-center font-fredoka text-base leading-relaxed">
+                  Diferentes categorias de ingressos para você viver a magia de pertinho
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-primary/20">
+            <Card className="circus-card group hover:shadow-xl transition-all duration-500 hover:-translate-y-4 hover:rotate-1">
               <CardHeader className="text-center pb-4">
-                <Star className="h-16 w-16 mx-auto mb-4 text-primary group-hover:text-secondary transition-colors" />
-                <CardTitle className="text-xl">VIP Access</CardTitle>
+                <Users className="h-20 w-20 mx-auto mb-4 text-accent group-hover:animate-pulse transition-all duration-500" />
+                <CardTitle className="text-2xl font-fredoka font-bold text-primary">Experiência VIP</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-center">
-                  Premium experiences with behind-the-scenes access and exclusive perks
+                <CardDescription className="text-center font-fredoka text-base leading-relaxed">
+                  Acesso aos bastidores e encontro exclusivo com os artistas
                 </CardDescription>
               </CardContent>
             </Card>
@@ -118,17 +122,23 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <section className="py-12 bg-gradient-to-r from-primary/5 to-secondary/5">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-16 bg-gradient-to-r from-primary via-primary to-secondary relative">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-primary/5 bg-repeat" style={{backgroundImage: "radial-gradient(circle at 50% 50%, hsl(var(--secondary)) 2px, transparent 2px)", backgroundSize: "20px 20px"}}></div>
+        </div>
+        <div className="container mx-auto px-4 text-center relative">
           <div className="max-w-xl mx-auto">
-            <div className="flex justify-center items-center gap-3 mb-4">
-              <Crown className="h-12 w-12 text-primary" />
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Alice Gate Pass
+            <div className="flex justify-center items-center gap-4 mb-6">
+              <Tent className="h-16 w-16 text-secondary animate-pulse" />
+              <span className="text-3xl font-bungee text-secondary">
+                MOSKINO
               </span>
             </div>
-            <p className="text-muted-foreground text-sm">
-              © 2024 Alice Gate Pass. Crafting extraordinary experiences.
+            <p className="text-secondary/80 text-lg font-fredoka font-medium">
+              🎪 Onde a magia acontece todos os dias 🎪
+            </p>
+            <p className="text-secondary/60 text-sm font-fredoka mt-4">
+              © 2024 Circo MOSKINO. Criando momentos inesquecíveis desde sempre.
             </p>
           </div>
         </div>
