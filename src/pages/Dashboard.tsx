@@ -114,19 +114,19 @@ const Dashboard = () => {
 
   // Interface para administradores
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/20">
-      <header className="border-b bg-card/50 backdrop-blur-sm">
+    <div className="min-h-screen circus-bg">
+      <header className="border-b circus-card backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Crown className="h-10 w-10 text-primary" />
+              <Tent className="h-10 w-10 text-primary animate-pulse" />
               <Sparkles className="h-3 w-3 text-accent absolute -top-0.5 -right-0.5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Alice Gate Pass
+              <h1 className="text-2xl font-bungee bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                MOSKINO
               </h1>
-              <p className="text-sm text-muted-foreground">Painel Administrativo</p>
+              <p className="text-sm text-muted-foreground font-fredoka">🎪 Painel Administrativo</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
