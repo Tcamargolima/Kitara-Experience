@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, Sparkles } from "lucide-react";
+import { Tent, Sparkles, PartyPopper, Star } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -180,38 +180,43 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen circus-bg flex items-center justify-center">
+        <div className="circus-stars">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-accent mx-auto mb-4"></div>
+          <p className="text-primary font-fredoka font-medium">Preparando o espetáculo...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/20">
-      <Card className="w-full max-w-md shadow-xl border-primary/20">
+    <div className="min-h-screen circus-bg flex items-center justify-center">
+      <Card className="circus-card w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 circus-stars">
             <div className="relative">
-              <Crown className="h-16 w-16 text-primary drop-shadow-lg" />
-              <Sparkles className="h-4 w-4 text-accent absolute -top-1 -right-1 animate-pulse" />
+              <Tent className="h-20 w-20 text-primary drop-shadow-lg animate-pulse" />
+              <PartyPopper className="h-6 w-6 text-accent absolute -top-1 -right-1 animate-spin" />
+              <Star className="h-4 w-4 text-secondary absolute -bottom-1 -left-1 animate-pulse delay-500" />
+              <Sparkles className="h-5 w-5 text-secondary absolute top-1 left-1 animate-pulse delay-1000" />
             </div>
           </div>
-          <CardTitle className="text-3xl bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            Alice Gate Pass
+          <CardTitle className="circus-title text-4xl font-bungee mb-2">
+            MOSKINO
           </CardTitle>
-          <CardDescription className="text-base">
-            {authMode === "email" 
-              ? "Entre com seu email e senha" 
+          <CardDescription className="text-lg font-fredoka font-medium text-foreground">
+            🎪 {authMode === "email" 
+              ? "Entre no Circo Digital" 
               : step === "phone" 
-                ? "Entre com seu telefone para acessar" 
-                : "Digite o código enviado por SMS"
-            }
+                ? "Garanta sua entrada no espetáculo" 
+                : "Digite o código mágico"
+            } 🎪
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* Auth Mode Selector */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-3 mb-6">
             <Button 
               variant={authMode === "email" ? "default" : "outline"}
               onClick={() => {
@@ -219,9 +224,9 @@ const Auth = () => {
                 setStep("email");
                 resetForm();
               }}
-              className="flex-1"
+              className="flex-1 font-fredoka font-bold"
             >
-              Email
+              ✉️ Email
             </Button>
             <Button 
               variant={authMode === "phone" ? "default" : "outline"}
@@ -230,40 +235,42 @@ const Auth = () => {
                 setStep("phone");
                 resetForm();
               }}
-              className="flex-1"
+              className="flex-1 font-fredoka font-bold"
             >
-              Telefone
+              📱 Telefone
             </Button>
           </div>
 
           {authMode === "email" ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="font-fredoka font-medium">🎭 Email do Artista</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="font-fredoka"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password" className="font-fredoka font-medium">🔑 Senha Mágica</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="Digite sua senha ou 123123"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="font-fredoka"
                 />
               </div>
               <Button 
                 onClick={handleEmailAuth} 
-                className="w-full"
+                className="circus-button w-full font-fredoka"
                 disabled={loading}
               >
-                {loading ? "Entrando..." : "Entrar"}
+                {loading ? "Preparando entrada..." : "🎪 Entrar no Circo 🎪"}
               </Button>
             </div>
           ) : (
@@ -271,36 +278,37 @@ const Auth = () => {
               setIsSignUp(value === "signup");
               resetForm();
             }}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 circus-card">
+                <TabsTrigger value="signin" className="font-fredoka font-bold">🎭 Entrar</TabsTrigger>
+                <TabsTrigger value="signup" className="font-fredoka font-bold">⭐ Cadastrar</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4">
                 {step === "phone" ? (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telefone</Label>
+                      <Label htmlFor="phone" className="font-fredoka font-medium">📱 Telefone Circense</Label>
                       <Input
                         id="phone"
                         type="tel"
                         placeholder="+55 (11) 99999-9999"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
+                        className="font-fredoka"
                       />
                     </div>
                     <Button 
                       onClick={handleSendCode} 
-                      className="w-full"
+                      className="circus-button w-full font-fredoka"
                       disabled={loading}
                     >
-                      {loading ? "Enviando..." : "Enviar Código SMS"}
+                      {loading ? "Enviando código..." : "✨ Enviar Código Mágico ✨"}
                     </Button>
                   </>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>Código SMS (ou use 123123)</Label>
+                      <Label className="font-fredoka font-medium">🎪 Código Mágico (ou use 123123)</Label>
                       <div className="flex justify-center">
                         <InputOTP value={smsCode} onChange={setSmsCode} maxLength={6}>
                           <InputOTPGroup>
@@ -316,17 +324,17 @@ const Auth = () => {
                     </div>
                     <Button 
                       onClick={handleVerifyCode} 
-                      className="w-full"
+                      className="circus-button w-full font-fredoka"
                       disabled={loading}
                     >
-                      {loading ? "Verificando..." : "Verificar Código"}
+                      {loading ? "Verificando..." : "🎭 Entrar no Espetáculo 🎭"}
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => setStep("phone")} 
-                      className="w-full"
+                      className="w-full font-fredoka"
                     >
-                      Voltar
+                      ← Voltar
                     </Button>
                   </>
                 )}
@@ -336,36 +344,38 @@ const Auth = () => {
                 {step === "phone" ? (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="name">Nome completo</Label>
+                      <Label htmlFor="name" className="font-fredoka font-medium">🎨 Nome do Artista</Label>
                       <Input
                         id="name"
-                        placeholder="Seu nome"
+                        placeholder="Seu nome completo"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        className="font-fredoka"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone-signup">Telefone</Label>
+                      <Label htmlFor="phone-signup" className="font-fredoka font-medium">📱 Telefone</Label>
                       <Input
                         id="phone-signup"
                         type="tel"
                         placeholder="+55 (11) 99999-9999"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
+                        className="font-fredoka"
                       />
                     </div>
                     <Button 
                       onClick={handleSendCode} 
-                      className="w-full"
+                      className="circus-button w-full font-fredoka"
                       disabled={loading}
                     >
-                      {loading ? "Enviando..." : "Enviar Código SMS"}
+                      {loading ? "Enviando..." : "✨ Enviar Código de Cadastro ✨"}
                     </Button>
                   </>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>Código SMS (ou use 123123)</Label>
+                      <Label className="font-fredoka font-medium">🎪 Código Mágico (ou use 123123)</Label>
                       <div className="flex justify-center">
                         <InputOTP value={smsCode} onChange={setSmsCode} maxLength={6}>
                           <InputOTPGroup>
@@ -381,17 +391,17 @@ const Auth = () => {
                     </div>
                     <Button 
                       onClick={handleVerifyCode} 
-                      className="w-full"
+                      className="circus-button w-full font-fredoka"
                       disabled={loading}
                     >
-                      {loading ? "Verificando..." : "Criar Conta"}
+                      {loading ? "Criando conta..." : "🌟 Juntar-se ao Circo 🌟"}
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => setStep("phone")} 
-                      className="w-full"
+                      className="w-full font-fredoka"
                     >
-                      Voltar
+                      ← Voltar
                     </Button>
                   </>
                 )}
@@ -400,61 +410,59 @@ const Auth = () => {
           )}
 
           {/* Quick Access Buttons */}
-          <div className="mt-6 space-y-3">
-            <p className="text-sm text-center font-medium text-primary">🚀 Acesso Rápido para Testes:</p>
+          <div className="mt-8 space-y-4">
+            <p className="text-center font-fredoka font-bold text-primary text-lg">🚀 Acesso Rápido - Testes 🚀</p>
             
             <Button 
               onClick={() => {
-                localStorage.clear(); // Limpa qualquer estado anterior
+                localStorage.clear();
                 localStorage.setItem("specialUser", JSON.stringify({
                   id: "admin-user-" + Date.now(),
-                  email: "alice@gatepass.com",
-                  name: "Alice Wonderland",
+                  email: "diretor@moskino.com",
+                  name: "Diretor MOSKINO",
                   profile: "admin",
                   special_access: true
                 }));
                 toast({
-                  title: "Acesso Liberado",
-                  description: "Entrando como administrador...",
+                  title: "🎪 Acesso Liberado!",
+                  description: "Bem-vindo, Diretor do Circo!",
                 });
-                // Força reload para garantir que o estado seja atualizado
                 window.location.href = "/dashboard";
               }}
-              className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
+              className="circus-button w-full font-fredoka text-background"
               disabled={loading}
             >
-              👑 Entrar como ADMIN
+              🎩 Entrar como DIRETOR DO CIRCO 🎩
             </Button>
 
             <Button 
               onClick={() => {
-                localStorage.clear(); // Limpa qualquer estado anterior
+                localStorage.clear();
                 localStorage.setItem("specialUser", JSON.stringify({
                   id: "cliente-user-" + Date.now(),
-                  email: "joao@cliente.com", 
-                  name: "João Silva",
+                  email: "espectador@moskino.com", 
+                  name: "Espectador VIP",
                   profile: "cliente",
                   special_access: true
                 }));
                 toast({
-                  title: "Acesso Liberado",
-                  description: "Entrando como cliente...",
+                  title: "🎭 Entrada Autorizada!",
+                  description: "Bem-vindo ao espetáculo!",
                 });
-                // Força reload para garantir que o estado seja atualizado
                 window.location.href = "/dashboard";
               }}
               variant="outline"
-              className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+              className="w-full border-primary text-primary hover:bg-primary/10 font-fredoka font-bold"
               disabled={loading}
             >
-              👤 Entrar como CLIENTE
+              🎪 Entrar como ESPECTADOR VIP 🎪
             </Button>
           </div>
 
           {/* Test credentials info */}
-          <div className="mt-4 p-3 bg-accent/10 rounded-lg border border-accent/30">
-            <p className="text-xs text-center text-muted-foreground">
-              💡 Acesso liberado para desenvolvimento - clique nos botões acima para testar
+          <div className="mt-6 circus-card p-4 border-2 border-secondary/30 bg-gradient-to-r from-secondary/10 to-accent/10">
+            <p className="text-sm text-center font-fredoka font-medium text-foreground">
+              ✨ Portal mágico aberto para testes - Escolha sua entrada! ✨
             </p>
           </div>
         </CardContent>

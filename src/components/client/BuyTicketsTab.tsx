@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Minus, Plus, ShoppingCart, CreditCard, QrCode, CheckCircle, Clock } from "lucide-react";
+import { Minus, Plus, Ticket, CreditCard, QrCode, CheckCircle, Clock, PartyPopper, Star, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,7 +35,7 @@ const BuyTicketsTab = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const TICKET_PRICE = 90.00;
+  const TICKET_PRICE = 50.00;
   const totalValue = quantity * TICKET_PRICE;
 
   const handleQuantityChange = (delta: number) => {
@@ -145,47 +145,49 @@ const BuyTicketsTab = () => {
   if (currentStep === 'select') {
     return (
       <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">Comprar Ingressos</h2>
-          <p className="text-muted-foreground">Garante já seu lugar no evento!</p>
+        <div className="circus-stars">
+          <h2 className="text-3xl font-bungee text-primary mb-2">🎪 Ingressos MOSKINO</h2>
+          <p className="text-muted-foreground font-fredoka font-medium">Garante já seu lugar no Grande Espetáculo!</p>
         </div>
 
-        <Card>
+        <Card className="circus-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 font-fredoka font-bold text-xl">
+              <Ticket className="h-6 w-6 text-accent animate-pulse" />
               Ingressos Disponíveis
+              <PartyPopper className="h-5 w-5 text-secondary animate-bounce" />
             </CardTitle>
-            <CardDescription>
-              Evento exclusivo com segurança blockchain
+            <CardDescription className="font-fredoka text-base">
+              🎭 Evento exclusivo com entrada garantida por blockchain 🎭
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Valor por ingresso</span>
-                <Badge variant="secondary" className="text-lg px-3 py-1">
+              <div className="flex justify-between items-center p-4 circus-card">
+                <span className="text-lg font-fredoka font-bold">🎟️ Valor por ingresso</span>
+                <Badge variant="secondary" className="text-xl px-4 py-2 font-bungee">
                   {formatCurrency(TICKET_PRICE)}
                 </Badge>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantidade de ingressos</Label>
-                <div className="flex items-center gap-4">
+              <div className="space-y-3">
+                <Label htmlFor="quantity" className="font-fredoka font-bold text-base">🎪 Quantidade de ingressos</Label>
+                <div className="flex items-center gap-4 justify-center">
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
+                    className="circus-button h-12 w-12"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-5 w-5" />
                   </Button>
                   <Input
                     id="quantity"
                     type="number"
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                    className="text-center w-20"
+                    className="text-center w-24 h-12 text-xl font-bold font-fredoka"
                     min="1"
                     max="100"
                   />
@@ -194,31 +196,33 @@ const BuyTicketsTab = () => {
                     size="icon"
                     onClick={() => handleQuantityChange(1)}
                     disabled={quantity >= 100}
+                    className="circus-button h-12 w-12"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Máximo: 100 ingressos por compra
+                <p className="text-sm text-muted-foreground text-center font-fredoka">
+                  🎯 Máximo: 100 ingressos por compra
                 </p>
               </div>
 
-              <Separator />
+              <Separator className="border-primary/30" />
 
-              <div className="space-y-3">
-                <div className="flex justify-between">
+              <div className="space-y-3 circus-card p-4">
+                <div className="flex justify-between font-fredoka">
                   <span>Subtotal ({quantity}x)</span>
                   <span>{formatCurrency(quantity * TICKET_PRICE)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-xl">
+                <div className="flex justify-between font-bungee text-2xl">
                   <span>Total</span>
-                  <span className="text-primary">{formatCurrency(totalValue)}</span>
+                  <span className="text-accent">{formatCurrency(totalValue)}</span>
                 </div>
               </div>
 
-              <Button onClick={handleBuyTickets} className="w-full" size="lg">
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Comprar {quantity} Ingresso{quantity > 1 ? 's' : ''}
+              <Button onClick={handleBuyTickets} className="circus-button w-full text-xl py-6 font-fredoka font-bold text-background" size="lg">
+                <Ticket className="h-6 w-6 mr-3" />
+                🎭 Comprar {quantity} Ingresso{quantity > 1 ? 's' : ''} 🎭
+                <Star className="h-5 w-5 ml-3 animate-spin" />
               </Button>
             </div>
           </CardContent>
@@ -241,11 +245,12 @@ const BuyTicketsTab = () => {
           </div>
         </div>
 
-        <Card>
+        <Card className="circus-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Resumo do Pedido
+            <CardTitle className="flex items-center gap-3 font-fredoka font-bold">
+              <Ticket className="h-6 w-6 text-accent animate-pulse" />
+              🎪 Resumo do Pedido
+              <PartyPopper className="h-5 w-5 text-secondary animate-bounce" />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
