@@ -41,26 +41,6 @@ const Auth = () => {
       return;
     }
 
-    // Check for special code
-    if (password === "123123") {
-      toast({
-        title: "Acesso Especial",
-        description: "Entrando com código especial...",
-      });
-      
-      // Create a temporary user session
-      localStorage.setItem("specialUser", JSON.stringify({
-        id: "special-user-" + Date.now(),
-        email,
-        name: email.split('@')[0],
-        profile: "cliente",
-        special_access: true
-      }));
-      
-      // Navigate to dashboard
-      navigate("/dashboard");
-      return;
-    }
 
     const result = await signIn(email, password);
     
@@ -126,25 +106,6 @@ const Auth = () => {
       return;
     }
 
-    // Check for special code
-    if (smsCode === "123123") {
-      toast({
-        title: "Acesso Especial",
-        description: "Entrando com código especial...",
-      });
-      
-      localStorage.setItem("specialUser", JSON.stringify({
-        id: "special-user-" + Date.now(),
-        email: phone + "@gatepass.temp",
-        name: name || phone,
-        phone,
-        profile: "cliente",
-        special_access: true
-      }));
-      
-      navigate("/dashboard");
-      return;
-    }
 
     let result;
     if (isSignUp) {
@@ -409,62 +370,6 @@ const Auth = () => {
             </Tabs>
           )}
 
-          {/* Quick Access Buttons */}
-          <div className="mt-8 space-y-4">
-            <p className="text-center font-fredoka font-bold text-primary text-lg">🚀 Acesso Rápido - Testes 🚀</p>
-            
-            <Button 
-              onClick={() => {
-                localStorage.clear();
-                localStorage.setItem("specialUser", JSON.stringify({
-                  id: "admin-user-" + Date.now(),
-                  email: "diretor@moskino.com",
-                  name: "Diretor MOSKINO",
-                  profile: "admin",
-                  special_access: true
-                }));
-                toast({
-                  title: "🎪 Acesso Liberado!",
-                  description: "Bem-vindo, Diretor do Circo!",
-                });
-                window.location.href = "/dashboard";
-              }}
-              className="circus-button w-full font-fredoka text-background"
-              disabled={loading}
-            >
-              🎩 Entrar como DIRETOR DO CIRCO 🎩
-            </Button>
-
-            <Button 
-              onClick={() => {
-                localStorage.clear();
-                localStorage.setItem("specialUser", JSON.stringify({
-                  id: "cliente-user-" + Date.now(),
-                  email: "espectador@moskino.com", 
-                  name: "Espectador VIP",
-                  profile: "cliente",
-                  special_access: true
-                }));
-                toast({
-                  title: "🎭 Entrada Autorizada!",
-                  description: "Bem-vindo ao espetáculo!",
-                });
-                window.location.href = "/dashboard";
-              }}
-              variant="outline"
-              className="w-full border-primary text-primary hover:bg-primary/10 font-fredoka font-bold"
-              disabled={loading}
-            >
-              🎪 Entrar como ESPECTADOR VIP 🎪
-            </Button>
-          </div>
-
-          {/* Test credentials info */}
-          <div className="mt-6 circus-card p-4 border-2 border-secondary/30 bg-gradient-to-r from-secondary/10 to-accent/10">
-            <p className="text-sm text-center font-fredoka font-medium text-foreground">
-              ✨ Portal mágico aberto para testes - Escolha sua entrada! ✨
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

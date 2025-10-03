@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+type AppRole = 'admin' | 'cliente' | 'pendente';
+
 interface Profile {
   id: string;
   user_id: string;
@@ -11,55 +13,20 @@ interface Profile {
   profile: 'admin' | 'cliente';
   created_at: string;
   updated_at: string;
+  pending_approval?: boolean;
+}
+
+interface UserRole {
+  role: AppRole;
 }
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  // Check for special user in localStorage
-  useEffect(() => {
-    console.log("🔍 Checking for special user in localStorage");
-    const specialUser = localStorage.getItem("specialUser");
-    if (specialUser) {
-      console.log("✅ Special user found:", specialUser);
-      const userData = JSON.parse(specialUser);
-      
-      // Create a mock user object for special users
-      const mockUser = {
-        id: userData.id,
-        email: userData.email || `${userData.id}@special.local`,
-        aud: "authenticated",
-        role: "authenticated",
-        email_confirmed_at: new Date().toISOString(),
-        phone: userData.phone || "",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_sign_in_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: { special_access: true }
-      };
-      
-      setUser(mockUser as any);
-      setProfile({
-        id: userData.id,
-        user_id: userData.id,
-        name: userData.name,
-        phone: userData.phone,
-        profile: userData.profile || 'cliente',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-      setLoading(false);
-      console.log("🎯 Loading set to false for special user, created mockUser:", !!mockUser);
-      return;
-    } else {
-      console.log("❌ No special user found in localStorage");
-    }
-  }, []);
 
   useEffect(() => {
     console.log("🚀 Setting up Supabase auth listener");
@@ -69,34 +36,38 @@ export const useAuth = () => {
       async (event, session) => {
         console.log("🔄 Auth state changed:", event, !!session);
 
-        // Check for special user first and avoid overwriting mock auth state
-        const specialUser = localStorage.getItem("specialUser");
-        if (specialUser) {
-          console.log("👑 Special user detected in auth listener, preserving mock user");
-          setLoading(false);
-          return;
-        }
-
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          console.log("📝 Fetching profile for user:", session.user.id);
-          // Defer profile fetching to avoid deadlocks
+          console.log("📝 Fetching profile and role for user:", session.user.id);
+          // Defer profile and role fetching to avoid deadlocks
           setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .single();
+            const [profileResult, roleResult] = await Promise.all([
+              supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .single(),
+              // @ts-ignore - user_roles table will exist after running migration SQL
+              supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', session.user.id)
+                .single()
+            ]);
             
-            console.log("👤 Profile data:", profileData);
-            setProfile(profileData as Profile);
+            console.log("👤 Profile data:", profileResult.data);
+            console.log("🔐 Role data:", roleResult.data);
+            setProfile(profileResult.data as Profile);
+            // @ts-ignore - role property will exist after migration
+            setUserRole(roleResult.data?.role ?? null);
             setLoading(false);
           }, 0);
         } else {
-          console.log("🚪 No session, clearing profile");
+          console.log("🚪 No session, clearing profile and role");
           setProfile(null);
+          setUserRole(null);
           setLoading(false);
         }
       }
@@ -106,27 +77,31 @@ export const useAuth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("🔍 Initial session check:", !!session);
       
-      // Check for special user first
-      const specialUser = localStorage.getItem("specialUser");
-      if (specialUser) {
-        console.log("👑 Special user exists, skipping session logic");
-        return;
-      }
-      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        console.log("📝 Fetching initial profile for user:", session.user.id);
+        console.log("📝 Fetching initial profile and role for user:", session.user.id);
         setTimeout(async () => {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
+          const [profileResult, roleResult] = await Promise.all([
+            supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single(),
+            // @ts-ignore - user_roles table will exist after running migration SQL
+            supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .single()
+          ]);
           
-          console.log("👤 Initial profile data:", profileData);
-          setProfile(profileData as Profile);
+          console.log("👤 Initial profile data:", profileResult.data);
+          console.log("🔐 Initial role data:", roleResult.data);
+          setProfile(profileResult.data as Profile);
+          // @ts-ignore - role property will exist after migration
+          setUserRole(roleResult.data?.role ?? null);
           setLoading(false);
         }, 0);
       } else {
@@ -359,41 +334,46 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      // Clear special user
-      localStorage.removeItem("specialUser");
-      
       await supabase.auth.signOut({ scope: 'global' });
       setUser(null);
       setSession(null);
       setProfile(null);
-      
-      // Navigate to auth page
+      setUserRole(null);
       navigate('/auth');
     } catch (error) {
       console.error('Erro no logout:', error);
-      // Force cleanup even if signOut fails
-      localStorage.removeItem("specialUser");
       setUser(null);
       setSession(null);
       setProfile(null);
+      setUserRole(null);
       navigate('/auth');
     }
   };
 
-  const isAuthenticated = !!user || !!profile;
-  const isAdmin = profile?.profile === 'admin';
+  const hasRole = (role: AppRole): boolean => {
+    return userRole === role;
+  };
+
+  const isAuthenticated = !!user;
+  const isAdmin = userRole === 'admin';
+  const isPending = userRole === 'pendente';
+  const isCliente = userRole === 'cliente';
 
   return {
     user,
     profile,
     session,
     loading,
+    userRole,
     signIn,
     sendSmsCode,
     verifyPhone,
     signInWithPhone,
     signOut,
+    hasRole,
     isAuthenticated,
-    isAdmin
+    isAdmin,
+    isPending,
+    isCliente,
   };
 };

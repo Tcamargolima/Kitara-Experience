@@ -12,13 +12,14 @@ import AdminTab from "@/components/dashboard/AdminTab";
 import { SecurityTab } from "@/components/dashboard/SecurityTab";
 import BuyTicketsTab from "@/components/client/BuyTicketsTab";
 import SubscriptionPlansTab from "@/components/client/SubscriptionPlansTab";
+import { PendingApprovalScreen } from "@/components/auth/PendingApprovalScreen";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, profile, signOut, isAuthenticated, loading } = useAuth();
+  const { user, profile, userRole, isPending, isAdmin, signOut, isAuthenticated, loading } = useAuth();
 
-  console.log("📊 Dashboard render - loading:", loading, "isAuthenticated:", isAuthenticated, "user:", !!user, "profile:", profile?.profile);
+  console.log("📊 Dashboard render - loading:", loading, "isAuthenticated:", isAuthenticated, "user:", !!user, "userRole:", userRole);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -35,6 +36,11 @@ const Dashboard = () => {
         </div>
       </div>
     );
+  }
+
+  // Show pending approval screen if user is pending
+  if (user && isPending) {
+    return <PendingApprovalScreen />;
   }
 
   const handleSignOut = () => {
@@ -56,8 +62,8 @@ const Dashboard = () => {
     );
   }
 
-  // Interface para clientes
-  if (profile?.profile === 'cliente') {
+  // Interface para clientes (usando userRole ao invés de profile.profile)
+  if (userRole === 'cliente') {
     return (
       <div className="min-h-screen circus-bg">
         <header className="border-b circus-card backdrop-blur-sm">
