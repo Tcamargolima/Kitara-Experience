@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Users, CreditCard, QrCode, AlertTriangle, BarChart3 } from "lucide-react";
+import { UserManagementTab } from "./UserManagementTab";
 
 interface Stats {
   totalUsers: number;
@@ -130,9 +131,10 @@ const AdminTab = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
+          <TabsTrigger value="user-management">Aprovação</TabsTrigger>
           <TabsTrigger value="tickets">Ingressos</TabsTrigger>
           <TabsTrigger value="subscriptions">Assinaturas</TabsTrigger>
         </TabsList>
@@ -166,15 +168,14 @@ const AdminTab = () => {
         <TabsContent value="users" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Gerenciamento de Usuários</CardTitle>
-              <CardDescription>Visualizar e gerenciar usuários do sistema</CardDescription>
+              <CardTitle>Lista de Usuários</CardTitle>
+              <CardDescription>Visualização geral de todos os usuários do sistema</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Funcionalidades de gerenciamento de usuários estarão disponíveis em breve.
-              </p>
-            </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="user-management" className="mt-6">
+          <UserManagementTab />
         </TabsContent>
 
         <TabsContent value="tickets" className="mt-6">

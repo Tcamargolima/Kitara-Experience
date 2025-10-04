@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tent, Sparkles, Calendar, Star, PartyPopper, Users, Ticket } from "lucide-react";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { IOSInstallInstructions } from "@/components/pwa/iOSInstallInstructions";
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -29,6 +31,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen circus-bg">
+      <InstallPrompt />
+      <IOSInstallInstructions />
+      
       {/* Hero Section */}
       <section className="relative circus-stars min-h-screen flex items-center">
         <div className="container mx-auto px-4">

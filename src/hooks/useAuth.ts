@@ -43,19 +43,18 @@ export const useAuth = () => {
           console.log("📝 Fetching profile and role for user:", session.user.id);
           // Defer profile and role fetching to avoid deadlocks
           setTimeout(async () => {
-            const [profileResult, roleResult] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .single(),
-              // @ts-ignore - user_roles table will exist after running migration SQL
-              supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', session.user.id)
-                .single()
-            ]);
+          const [profileResult, roleResult] = await Promise.all([
+            supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single(),
+            supabase
+              .from('user_roles' as any)
+              .select('role')
+              .eq('user_id', session.user.id)
+              .single()
+          ]);
             
             console.log("👤 Profile data:", profileResult.data);
             console.log("🔐 Role data:", roleResult.data);
@@ -89,9 +88,8 @@ export const useAuth = () => {
               .select('*')
               .eq('user_id', session.user.id)
               .single(),
-            // @ts-ignore - user_roles table will exist after running migration SQL
             supabase
-              .from('user_roles')
+              .from('user_roles' as any)
               .select('role')
               .eq('user_id', session.user.id)
               .single()
