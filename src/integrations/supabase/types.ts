@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -55,18 +55,116 @@ export type Database = {
           },
         ]
       }
+      account_locks: {
+        Row: {
+          created_at: string
+          email: string | null
+          failed_attempts: number
+          id: string
+          locked_until: string
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          failed_attempts?: number
+          id?: string
+          locked_until: string
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          failed_attempts?: number
+          id?: string
+          locked_until?: string
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      backup_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          attempt_type: string
+          created_at: string
+          email: string | null
+          error_message: string | null
+          id: string
+          ip_address: unknown | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempt_type?: string
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempt_type?: string
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approval_code: string | null
           created_at: string
           device_info: Json | null
           id: string
+          last_login: string | null
+          last_password_change: string | null
           location_data: Json | null
           name: string
+          password_hash: string | null
           pending_approval: boolean | null
           phone: string | null
           phone_verified: boolean | null
           profile: string
+          require_password_change: boolean | null
+          two_factor_enabled: boolean | null
           updated_at: string
           user_id: string
         }
@@ -75,12 +173,17 @@ export type Database = {
           created_at?: string
           device_info?: Json | null
           id?: string
+          last_login?: string | null
+          last_password_change?: string | null
           location_data?: Json | null
           name: string
+          password_hash?: string | null
           pending_approval?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
           profile: string
+          require_password_change?: boolean | null
+          two_factor_enabled?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -89,12 +192,17 @@ export type Database = {
           created_at?: string
           device_info?: Json | null
           id?: string
+          last_login?: string | null
+          last_password_change?: string | null
           location_data?: Json | null
           name?: string
+          password_hash?: string | null
           pending_approval?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
           profile?: string
+          require_password_change?: boolean | null
+          two_factor_enabled?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -247,12 +355,73 @@ export type Database = {
         }
         Relationships: []
       }
+      two_factor_settings: {
+        Row: {
+          backup_codes_generated: boolean
+          created_at: string
+          enabled: boolean
+          id: string
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes_generated?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes_generated?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_account_lock: {
+        Args: { p_email: string }
+        Returns: {
+          failed_attempts: number
+          is_locked: boolean
+          locked_until: string
+        }[]
+      }
+      cleanup_old_login_attempts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      generate_backup_codes: {
+        Args: { p_user_id: string }
+        Returns: string[]
+      }
+      log_login_attempt: {
+        Args: {
+          p_attempt_type?: string
+          p_email: string
+          p_error_message?: string
+          p_ip_address: unknown
+          p_success: boolean
+          p_user_agent: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      validate_backup_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
