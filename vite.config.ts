@@ -26,9 +26,14 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
-      '@radix-ui/react-tooltip',
       'next-themes',
       '@tanstack/react-query',
     ],
+    force: true,
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+    },
   },
 }));
