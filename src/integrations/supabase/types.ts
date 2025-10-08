@@ -158,7 +158,6 @@ export type Database = {
           last_password_change: string | null
           location_data: Json | null
           name: string
-          password_hash: string | null
           pending_approval: boolean | null
           phone: string | null
           phone_verified: boolean | null
@@ -177,7 +176,6 @@ export type Database = {
           last_password_change?: string | null
           location_data?: Json | null
           name: string
-          password_hash?: string | null
           pending_approval?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
@@ -196,7 +194,6 @@ export type Database = {
           last_password_change?: string | null
           location_data?: Json | null
           name?: string
-          password_hash?: string | null
           pending_approval?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
