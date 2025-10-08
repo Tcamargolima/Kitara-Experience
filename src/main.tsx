@@ -1,7 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Temporarily use simple app to verify React works
-import App from './App.simple.tsx'
+import App from './App.tsx'
 import './index.css'
 
 // Register Service Worker
