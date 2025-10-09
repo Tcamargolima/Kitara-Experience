@@ -114,6 +114,7 @@ export const useAuth = () => {
   const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true);
+      console.log('🔑 Tentando login com:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -121,15 +122,19 @@ export const useAuth = () => {
       });
 
       if (error) {
+        console.error('❌ Erro no login:', error);
         return { success: false, error: error.message };
       }
 
       if (data.user) {
+        console.log('✅ Login bem-sucedido:', data.user.email);
         return { success: true };
       }
 
+      console.error('❌ Falha no login - usuário não encontrado');
       return { success: false, error: "Falha no login" };
     } catch (error) {
+      console.error('❌ Erro inesperado no login:', error);
       return { success: false, error: "Erro inesperado" };
     } finally {
       setLoading(false);
