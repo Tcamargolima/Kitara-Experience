@@ -17,14 +17,13 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', '@tanstack/react-query'],
-    esbuildOptions: {
-      target: 'esnext',
-    },
+    include: ['react', 'react-dom', '@tanstack/react-query', '@radix-ui/react-tooltip'],
+    force: true,
   },
   build: {
     target: 'esnext',
