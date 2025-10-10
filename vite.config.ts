@@ -18,6 +18,14 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     exclude: ['@radix-ui/react-tooltip'],
     include: ['react', 'react-dom', 'react/jsx-runtime'],
+    force: true,
+    esbuildOptions: {
+      // Prevent multiple React instances
+      alias: {
+        'react': 'react',
+        'react-dom': 'react-dom'
+      }
+    }
   },
   server: {
     host: "::",
