@@ -5,10 +5,6 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
   plugins: [
     react(),
     mode === 'development' &&
@@ -20,8 +16,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
+    exclude: ['@radix-ui/react-tooltip'],
     include: ['react', 'react-dom', 'react/jsx-runtime'],
-    force: true,
+  },
+  server: {
+    host: "::",
+    port: 8080,
+    fs: {
+      strict: false
+    }
   },
   build: {
     target: 'esnext',
