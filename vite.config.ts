@@ -20,9 +20,10 @@ export default defineConfig(({ mode }) => ({
       'react': path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', '@tanstack/react-query', '@radix-ui/react-tooltip'],
+    include: ['react', 'react-dom'],
     force: true,
   },
   build: {
