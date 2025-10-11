@@ -16,22 +16,13 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    exclude: ['@radix-ui/react-tooltip'],
+    exclude: ['@radix-ui/react-tooltip', '@radix-ui/react-tooltip/*'],
     include: ['react', 'react-dom', 'react/jsx-runtime'],
-    force: true,
     esbuildOptions: {
-      // Prevent multiple React instances
-      alias: {
-        'react': 'react',
-        'react-dom': 'react-dom'
+      define: {
+        // Force cache invalidation
+        'process.env.BUILD_TIME': JSON.stringify(Date.now().toString())
       }
-    }
-  },
-  server: {
-    host: "::",
-    port: 8080,
-    fs: {
-      strict: false
     }
   },
   build: {
@@ -39,5 +30,12 @@ export default defineConfig(({ mode }) => ({
     commonjsOptions: {
       include: [/node_modules/],
     },
+  },
+  server: {
+    host: "::",
+    port: 8080,
+    fs: {
+      strict: false
+    }
   },
 }));
