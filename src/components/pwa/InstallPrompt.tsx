@@ -17,7 +17,6 @@ export const InstallPrompt = () => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
-      // Show prompt after 30 seconds if not dismissed
       setTimeout(() => {
         const dismissed = localStorage.getItem('pwa-install-dismissed');
         if (!dismissed) {
@@ -56,7 +55,7 @@ export const InstallPrompt = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
-      <Card className="border-2 border-primary shadow-lg">
+      <Card className="kitara-card shadow-lg">
         <CardHeader className="relative pb-3">
           <Button
             variant="ghost"
@@ -66,17 +65,17 @@ export const InstallPrompt = () => {
           >
             <X className="h-4 w-4" />
           </Button>
-          <CardTitle className="flex items-center gap-2">
-            🎪 Instalar MOSKINO
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
+            ⚡ Install KITARA
           </CardTitle>
           <CardDescription>
-            Adicione o app à sua tela inicial para acesso rápido e experiência completa
+            Add the app to your home screen for quick access
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={handleInstall} className="w-full">
+          <Button onClick={handleInstall} className="w-full kitara-button">
             <Download className="w-4 h-4 mr-2" />
-            Instalar Aplicativo
+            Install App
           </Button>
         </CardContent>
       </Card>

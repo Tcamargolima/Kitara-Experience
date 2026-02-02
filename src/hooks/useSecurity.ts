@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { SecurityService, SecurityAttempt } from '@/lib/security';
-import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityState {
   has2FA: boolean;
@@ -30,14 +29,12 @@ export const useSecurity = (userId?: string) => {
     try {
       setLoading(true);
       
-      // Em produção, buscar dados da base de dados
-      // Por enquanto, usando localStorage para demonstração
       const stored = localStorage.getItem(`security_${userId}`);
       if (stored) {
         const data = JSON.parse(stored);
         setSecurityState({
           ...data,
-          loginAttempts: data.loginAttempts.map((attempt: any) => ({
+          loginAttempts: data.loginAttempts.map((attempt: SecurityAttempt & { timestamp: string }) => ({
             ...attempt,
             timestamp: new Date(attempt.timestamp)
           })),
@@ -45,7 +42,6 @@ export const useSecurity = (userId?: string) => {
         });
       }
       
-      // Verificar se ainda está bloqueado
       checkLockStatus();
     } catch (error) {
       console.error('Erro ao carregar estado de segurança:', error);
@@ -72,7 +68,7 @@ export const useSecurity = (userId?: string) => {
           ...prev,
           isLocked: false,
           lockUntil: undefined,
-          loginAttempts: [] // Limpar tentativas após desbloqueio
+          loginAttempts: []
         };
       }
       
@@ -93,24 +89,6 @@ export const useSecurity = (userId?: string) => {
     };
     
     saveSecurityState(newState);
-    
-    // Em produção, salvar na base de dados
-    if (userId) {
-      supabase
-        .from('profiles')
-        .update({
-          device_info: {
-            ...((securityState as any).device_info || {}),
-            has_2fa: true,
-            totp_secret: secret,
-            backup_codes: backupCodes
-          }
-        })
-        .eq('user_id', userId)
-        .then(() => {
-          console.log('2FA salvo na base de dados');
-        });
-    }
   };
 
   const disable2FA = () => {
@@ -122,32 +100,12 @@ export const useSecurity = (userId?: string) => {
     };
     
     saveSecurityState(newState);
-    
-    // Em produção, atualizar na base de dados
-    if (userId) {
-      supabase
-        .from('profiles')
-        .update({
-          device_info: {
-            ...((securityState as any).device_info || {}),
-            has_2fa: false,
-            totp_secret: null,
-            backup_codes: []
-          }
-        })
-        .eq('user_id', userId)
-        .then(() => {
-          console.log('2FA removido da base de dados');
-        });
-    }
   };
 
   const addLoginAttempt = (success: boolean, type: 'login' | '2fa' = 'login') => {
     const attempt = SecurityService.createSecurityAttempt(type, success);
     
     const newAttempts = [...securityState.loginAttempts, attempt];
-    
-    // Manter apenas últimas 20 tentativas
     const recentAttempts = newAttempts.slice(-20);
     
     const newState: SecurityState = {
@@ -155,31 +113,11 @@ export const useSecurity = (userId?: string) => {
       loginAttempts: recentAttempts,
       isLocked: !success && SecurityService.isAccountLocked(recentAttempts),
       lockUntil: !success && SecurityService.isAccountLocked(recentAttempts) 
-        ? new Date(Date.now() + 30 * 60 * 1000) // 30 minutos
+        ? new Date(Date.now() + 30 * 60 * 1000)
         : securityState.lockUntil
     };
     
     saveSecurityState(newState);
-    
-    // Em produção, salvar tentativa na tabela secure_access_logs
-    if (userId) {
-      supabase
-        .from('secure_access_logs')
-        .insert({
-          user_id: userId,
-          event_type: `${type}_attempt`,
-          timestamp: attempt.timestamp.toISOString(),
-          device_fingerprint: attempt.userAgent,
-          encrypted_data: JSON.stringify({
-            success,
-            type,
-            ip: attempt.ip
-          })
-        })
-        .then(() => {
-          console.log('Tentativa de login registrada');
-        });
-    }
     
     return newState;
   };
@@ -192,11 +130,9 @@ export const useSecurity = (userId?: string) => {
     let isValid = false;
     
     if (isBackupCode) {
-      // Verificar se é um código de backup válido
       isValid = securityState.backupCodes.includes(code);
       
       if (isValid) {
-        // Remover código de backup usado
         const newBackupCodes = securityState.backupCodes.filter(c => c !== code);
         const newState: SecurityState = {
           ...securityState,
@@ -205,11 +141,9 @@ export const useSecurity = (userId?: string) => {
         saveSecurityState(newState);
       }
     } else {
-      // Verificar TOTP
       isValid = SecurityService.verifyTOTP(code, securityState.secret2FA);
     }
     
-    // Registrar tentativa
     addLoginAttempt(isValid, '2fa');
     
     return isValid;
@@ -219,7 +153,7 @@ export const useSecurity = (userId?: string) => {
     const now = Date.now();
     const recentFailed = securityState.loginAttempts.filter(attempt => 
       !attempt.success && 
-      (now - attempt.timestamp.getTime()) < 30 * 60 * 1000 // Últimos 30 minutos
+      (now - attempt.timestamp.getTime()) < 30 * 60 * 1000
     );
     
     return recentFailed.length;
@@ -231,7 +165,7 @@ export const useSecurity = (userId?: string) => {
     }
     
     const remaining = securityState.lockUntil.getTime() - Date.now();
-    return Math.max(0, Math.ceil(remaining / 1000)); // Segundos
+    return Math.max(0, Math.ceil(remaining / 1000));
   };
 
   const resetLock = () => {

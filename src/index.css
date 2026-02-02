@@ -2,98 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* KITARA Design System
+   Background: #050505 (matte black)
+   Text: #E5E5E5 (soft silver)
+   Primary: #00FF9D (emerald neon glow)
+   Secondary: #C5A059 (champagne gold)
 */
 
 @layer base {
   :root {
-    /* Circo MOSKINO Theme Colors */
-    --background: 180 35% 95%; /* Light cream/beige */
-    --foreground: 195 85% 15%; /* Deep teal blue */
+    /* KITARA Light Theme (inverted for accessibility) */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 157 100% 50%;
+    --primary-foreground: 0 0% 2%;
+    --secondary: 41 50% 55%;
+    --secondary-foreground: 0 0% 2%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 157 100% 45%;
+    --accent-foreground: 0 0% 2%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 41 30% 70%;
+    --input: 0 0% 90%;
+    --ring: 157 100% 50%;
+    --radius: 0.75rem;
+    
+    /* KITARA specific */
+    --kitara-gold: 41 50% 55%;
+    --kitara-neon: 157 100% 50%;
+    --kitara-dark: 0 0% 2%;
 
-    --card: 45 85% 92%; /* Warm cream */
-    --card-foreground: 195 85% 15%;
-
-    --popover: 45 85% 92%;
-    --popover-foreground: 195 85% 15%;
-
-    --primary: 195 85% 25%; /* Circus teal green */
-    --primary-foreground: 45 95% 88%; /* Golden cream */
-
-    --secondary: 45 95% 75%; /* Bright golden yellow */
-    --secondary-foreground: 195 85% 15%;
-
-    --muted: 45 45% 85%;
-    --muted-foreground: 195 35% 45%;
-
-    --accent: 15 85% 55%; /* Circus red */
-    --accent-foreground: 45 95% 95%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 45 35% 80%;
-    --input: 45 35% 85%;
-    --ring: 195 85% 35%;
-
-    --radius: 1rem; /* More rounded for circus theme */
-
-    /* Circus gradients and special colors */
-    --circus-gold: 45 95% 75%;
-    --circus-teal: 195 85% 25%;
-    --circus-red: 15 85% 55%;
-    --circus-blue: 210 85% 45%;
-    --circus-cream: 45 85% 92%;
-
-    --sidebar-background: 45 85% 92%;
-    --sidebar-foreground: 195 85% 15%;
-    --sidebar-primary: 195 85% 25%;
-    --sidebar-primary-foreground: 45 95% 88%;
-    --sidebar-accent: 45 65% 85%;
-    --sidebar-accent-foreground: 195 85% 15%;
-    --sidebar-border: 45 35% 75%;
-    --sidebar-ring: 195 85% 35%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 157 100% 50%;
+    --sidebar-primary-foreground: 0 0% 2%;
+    --sidebar-accent: 41 30% 90%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 41 30% 80%;
+    --sidebar-ring: 157 100% 50%;
   }
 
   .dark {
-    /* Dark Circus Theme - Deeper blues with golden accents */
-    --background: 210 85% 8%; /* Deep circus blue */
-    --foreground: 45 95% 88%;
+    /* KITARA Dark Theme - Primary */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 90%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 157 100% 50%;
+    --primary-foreground: 0 0% 2%;
+    --secondary: 41 50% 55%;
+    --secondary-foreground: 0 0% 2%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 157 100% 45%;
+    --accent-foreground: 0 0% 2%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 41 20% 20%;
+    --input: 0 0% 10%;
+    --ring: 157 100% 50%;
 
-    --card: 210 75% 12%;
-    --card-foreground: 45 95% 88%;
-
-    --popover: 210 75% 12%;
-    --popover-foreground: 45 95% 88%;
-
-    --primary: 45 95% 75%; /* Golden in dark mode */
-    --primary-foreground: 210 85% 8%;
-
-    --secondary: 195 85% 35%; /* Teal accent */
-    --secondary-foreground: 45 95% 88%;
-
-    --muted: 210 35% 25%;
-    --muted-foreground: 45 35% 65%;
-
-    --accent: 15 85% 55%; /* Circus red stays same */
-    --accent-foreground: 45 95% 95%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 210 35% 25%;
-    --input: 210 35% 20%;
-    --ring: 45 95% 75%;
-
-    --sidebar-background: 210 85% 8%;
-    --sidebar-foreground: 45 95% 88%;
-    --sidebar-primary: 45 95% 75%;
-    --sidebar-primary-foreground: 210 85% 8%;
-    --sidebar-accent: 210 35% 25%;
-    --sidebar-accent-foreground: 45 95% 88%;
-    --sidebar-border: 210 35% 20%;
-    --sidebar-ring: 45 95% 75%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 157 100% 50%;
+    --sidebar-primary-foreground: 0 0% 2%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 41 20% 15%;
+    --sidebar-ring: 157 100% 50%;
   }
 }
 
@@ -107,71 +91,92 @@ All colors MUST be HSL.
   }
 }
 
-/* Circus MOSKINO Custom Styles */
+/* KITARA Custom Styles */
 @layer components {
-  .circus-title {
+  .kitara-title {
     @apply text-6xl font-black tracking-wider uppercase;
     background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--primary)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 4px 12px hsl(var(--secondary) / 0.3);
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.3);
   }
 
-  .circus-button {
-    @apply relative overflow-hidden rounded-2xl font-bold text-lg px-8 py-4 transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent)) 60%);
-    box-shadow: 0 8px 25px hsl(var(--accent) / 0.4);
+  .kitara-button {
+    @apply relative overflow-hidden rounded-lg font-bold text-lg px-8 py-4 transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)) 60%);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.4), 0 0 60px hsl(var(--primary) / 0.2);
+    color: hsl(var(--primary-foreground));
   }
 
-  .circus-button:hover {
+  .kitara-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 35px hsl(var(--accent) / 0.6);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.6), 0 0 80px hsl(var(--primary) / 0.3);
   }
 
-  .circus-card {
-    @apply relative rounded-3xl border-4 border-primary/20 backdrop-blur-sm;
-    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card)) 60%, hsl(var(--secondary) / 0.1));
-    box-shadow: 0 10px 30px hsl(var(--primary) / 0.15);
+  .kitara-button-outline {
+    @apply border border-secondary/20 bg-transparent text-foreground hover:bg-secondary/10 hover:border-secondary/40;
   }
 
-  .circus-stars {
+  .kitara-card {
+    @apply relative rounded-xl backdrop-blur-md;
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card)) 80%);
+    border: 1px solid hsl(var(--secondary) / 0.2);
+    box-shadow: 0 4px 20px hsl(var(--primary) / 0.05);
+  }
+
+  .kitara-input {
+    @apply bg-input border-secondary/20 focus:border-secondary/40 focus:ring-primary/20;
+  }
+
+  .kitara-bg {
+    background: hsl(var(--background));
     position: relative;
   }
 
-  .circus-stars::before {
-    content: '✦ ✧ ★ ☆';
+  .kitara-bg::before {
+    content: '';
     position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    font-size: 1.5rem;
-    color: hsl(var(--secondary));
-    opacity: 0.3;
-    animation: sparkle 3s ease-in-out infinite;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.03), transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(var(--secondary) / 0.05), transparent 50%);
     pointer-events: none;
   }
 
-  .circus-bg {
-    background: radial-gradient(circle at 30% 20%, hsl(var(--secondary) / 0.1), transparent 50%),
-                radial-gradient(circle at 80% 80%, hsl(var(--accent) / 0.1), transparent 50%),
-                radial-gradient(circle at 40% 60%, hsl(var(--primary) / 0.1), transparent 50%),
-                linear-gradient(135deg, hsl(var(--background)), hsl(var(--card)));
+  .kitara-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .kitara-header {
+    @apply border-b backdrop-blur-sm;
+    background: hsl(var(--background) / 0.9);
+    border-color: hsl(var(--secondary) / 0.1);
+  }
+
+  .kitara-footer {
+    background: linear-gradient(to top, hsl(var(--background)), hsl(var(--card)));
+    border-top: 1px solid hsl(var(--secondary) / 0.1);
+  }
+
+  .kitara-tabs {
+    @apply bg-card/50 backdrop-blur-sm rounded-lg p-1;
+    border: 1px solid hsl(var(--secondary) / 0.1);
+  }
+
+  .kitara-tab {
+    @apply data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all;
+  }
+
+  /* Font Imports */
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
   }
 }
 
-@keyframes sparkle {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
-  50% { transform: scale(1.1) rotate(180deg); opacity: 0.7; }
-}
-
-@keyframes circus-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes bounce-in {
-  0% { transform: scale(0.8) translateY(20px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
