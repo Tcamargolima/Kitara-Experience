@@ -134,36 +134,36 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="kitara-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-fredoka font-medium text-muted-foreground">Total de Usuários</p>
-                <p className="text-3xl font-bungee text-primary">3</p>
+                <p className="text-sm font-medium text-muted-foreground">Total de Usuários</p>
+                <p className="text-3xl font-cinzel text-primary">3</p>
               </div>
               <User className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="kitara-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-fredoka font-medium text-muted-foreground">Com 2FA Ativo</p>
-                <p className="text-3xl font-bungee text-green-500">1</p>
+                <p className="text-sm font-medium text-muted-foreground">Com 2FA Ativo</p>
+                <p className="text-3xl font-cinzel text-primary">1</p>
               </div>
               <Smartphone className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="kitara-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-fredoka font-medium text-muted-foreground">Contas Bloqueadas</p>
-                <p className="text-3xl font-bungee text-red-500">1</p>
+                <p className="text-sm font-medium text-muted-foreground">Contas Bloqueadas</p>
+                <p className="text-3xl font-cinzel text-destructive">1</p>
               </div>
               <Lock className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -172,16 +172,16 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm">
-          <TabsTrigger value="settings" className="font-fredoka data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <TabsList className="kitara-tabs">
+          <TabsTrigger value="settings" className="kitara-tab">
             <Shield className="h-4 w-4 mr-2" />
             Minhas Configurações
           </TabsTrigger>
-          <TabsTrigger value="users" className="font-fredoka data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="users" className="kitara-tab">
             <User className="h-4 w-4 mr-2" />
             Gerenciar Usuários
           </TabsTrigger>
-          <TabsTrigger value="logs" className="font-fredoka data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="logs" className="kitara-tab">
             <Activity className="h-4 w-4 mr-2" />
             Logs de Segurança
           </TabsTrigger>
@@ -198,10 +198,10 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
         </TabsContent>
 
         <TabsContent value="users" className="mt-6">
-          <Card>
+          <Card className="kitara-card">
             <CardHeader>
-              <CardTitle className="font-bungee text-primary">Gerenciamento de Usuários 👥</CardTitle>
-              <CardDescription className="font-fredoka">
+              <CardTitle className="font-cinzel text-secondary">Gerenciamento de Usuários</CardTitle>
+              <CardDescription>
                 Gerencie a segurança e acesso dos usuários do sistema
               </CardDescription>
             </CardHeader>
@@ -209,21 +209,21 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-fredoka">Usuário</TableHead>
-                    <TableHead className="font-fredoka">2FA</TableHead>
-                    <TableHead className="font-fredoka">Último Login</TableHead>
-                    <TableHead className="font-fredoka">Tentativas</TableHead>
-                    <TableHead className="font-fredoka">Status</TableHead>
-                    <TableHead className="font-fredoka">Ações</TableHead>
+                    <TableHead className="font-medium">Usuário</TableHead>
+                    <TableHead className="font-medium">2FA</TableHead>
+                    <TableHead className="font-medium">Último Login</TableHead>
+                    <TableHead className="font-medium">Tentativas</TableHead>
+                    <TableHead className="font-medium">Status</TableHead>
+                    <TableHead className="font-medium">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {userSecurityStats.map((user, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-fredoka">{user.user}</TableCell>
+                      <TableCell className="font-medium">{user.user}</TableCell>
                       <TableCell>
                         {user.has2FA ? (
-                          <Badge variant="default" className="bg-green-500">
+                          <Badge variant="default" className="bg-primary">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Ativo
                           </Badge>
@@ -234,7 +234,7 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="font-fredoka text-sm">
+                      <TableCell className="text-sm">
                         {user.lastLogin.toLocaleString('pt-BR')}
                       </TableCell>
                       <TableCell>
@@ -275,10 +275,10 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
         </TabsContent>
 
         <TabsContent value="logs" className="mt-6">
-          <Card>
+          <Card className="kitara-card">
             <CardHeader>
-              <CardTitle className="font-bungee text-primary">Logs de Segurança 📋</CardTitle>
-              <CardDescription className="font-fredoka">
+              <CardTitle className="font-cinzel text-secondary">Logs de Segurança</CardTitle>
+              <CardDescription>
                 Histórico de eventos de segurança e autenticação
               </CardDescription>
             </CardHeader>
@@ -286,29 +286,29 @@ export const SecurityTab = ({ userId }: SecurityTabProps) => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-fredoka">Usuário</TableHead>
-                    <TableHead className="font-fredoka">Evento</TableHead>
-                    <TableHead className="font-fredoka">Data/Hora</TableHead>
-                    <TableHead className="font-fredoka">IP</TableHead>
-                    <TableHead className="font-fredoka">Dispositivo</TableHead>
-                    <TableHead className="font-fredoka">Status</TableHead>
+                    <TableHead className="font-medium">Usuário</TableHead>
+                    <TableHead className="font-medium">Evento</TableHead>
+                    <TableHead className="font-medium">Data/Hora</TableHead>
+                    <TableHead className="font-medium">IP</TableHead>
+                    <TableHead className="font-medium">Dispositivo</TableHead>
+                    <TableHead className="font-medium">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {securityLogs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="font-fredoka font-medium">{log.user}</TableCell>
-                      <TableCell className="font-fredoka">{log.event}</TableCell>
-                      <TableCell className="font-fredoka text-sm">
+                      <TableCell className="font-medium">{log.user}</TableCell>
+                      <TableCell>{log.event}</TableCell>
+                      <TableCell className="text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-3 w-3" />
                           {log.timestamp.toLocaleString('pt-BR')}
                         </div>
                       </TableCell>
-                      <TableCell className="font-fredoka text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground">
                         {log.ip}
                       </TableCell>
-                      <TableCell className="font-fredoka text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground">
                         {log.device}
                       </TableCell>
                       <TableCell>

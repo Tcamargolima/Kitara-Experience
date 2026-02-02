@@ -101,18 +101,18 @@ export const SecuritySettings = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
             <Settings className="h-5 w-5" />
             Configurações de Segurança 🛡️
           </CardTitle>
-          <CardDescription className="font-fredoka">
+          <CardDescription className="font-medium">
             Gerencie as configurações de segurança da sua conta
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Status da Segurança */}
           <div className="space-y-3">
-            <h3 className="font-fredoka font-semibold flex items-center gap-2">
+            <h3 className="font-medium font-semibold flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Status da Segurança
             </h3>
@@ -125,7 +125,7 @@ export const SecuritySettings = ({
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   )}
                   <div>
-                    <p className="font-fredoka font-medium">Autenticação 2FA</p>
+                    <p className="font-medium font-medium">Autenticação 2FA</p>
                     <p className="text-sm text-muted-foreground">
                       {has2FA ? 'Ativada e funcionando' : 'Recomendamos ativar para maior segurança'}
                     </p>
@@ -140,7 +140,7 @@ export const SecuritySettings = ({
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-blue-500" />
                   <div>
-                    <p className="font-fredoka font-medium">Último Acesso</p>
+                    <p className="font-medium font-medium">Último Acesso</p>
                     <p className="text-sm text-muted-foreground">
                       {lastLogin ? lastLogin.toLocaleString('pt-BR') : 'Nunca'}
                     </p>
@@ -159,7 +159,7 @@ export const SecuritySettings = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h3 className="font-fredoka font-semibold flex items-center gap-2">
+                <h3 className="font-medium font-semibold flex items-center gap-2">
                   <Smartphone className="h-4 w-4" />
                   Autenticação de Dois Fatores
                 </h3>
@@ -177,14 +177,14 @@ export const SecuritySettings = ({
               <div className="space-y-3 pl-6 border-l-2 border-primary/20">
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
-                  <AlertDescription className="font-fredoka">
+                  <AlertDescription className="font-medium">
                     2FA está ativo. Use seu aplicativo autenticador para fazer login.
                   </AlertDescription>
                 </Alert>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-fredoka text-sm font-medium">Códigos de Backup</span>
+                    <span className="font-medium text-sm font-medium">Códigos de Backup</span>
                     <div className="flex gap-2">
                       <Button
                         size="sm"
@@ -214,7 +214,7 @@ export const SecuritySettings = ({
 
                   <Alert>
                     <Key className="h-4 w-4" />
-                    <AlertDescription className="text-xs font-fredoka">
+                    <AlertDescription className="text-xs font-medium">
                       Guarde os códigos de backup em local seguro. Cada código só pode ser usado uma vez.
                     </AlertDescription>
                   </Alert>
@@ -224,7 +224,7 @@ export const SecuritySettings = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => setShow2FASetup(true)}
-                  className="font-fredoka"
+                  className="font-medium"
                 >
                   Reconfigurar 2FA
                 </Button>

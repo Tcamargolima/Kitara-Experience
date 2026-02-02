@@ -2,20 +2,20 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Zap, LogOut, Settings, Shield, LayoutDashboard, Users } from "lucide-react";
+import { LogOut, Settings, Shield, LayoutDashboard, Users, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import TicketsTab from "@/components/dashboard/TicketsTab";
 import SubscriptionsTab from "@/components/dashboard/SubscriptionsTab";
 import { SecurityTab } from "@/components/dashboard/SecurityTab";
 import { UserManagementTab } from "@/components/dashboard/UserManagementTab";
+import ProductsTab from "@/components/dashboard/ProductsTab";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, profile, userRole, isAdmin, signOut, isAuthenticated, loading } = useAuth();
-
-  console.log("📊 Dashboard render - loading:", loading, "isAuthenticated:", isAuthenticated, "user:", !!user, "userRole:", userRole);
+  const { user, profile, userRole, signOut, isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -46,7 +46,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen kitara-bg flex items-center justify-center">
         <div className="text-center">
-          <Zap className="h-12 w-12 animate-pulse mx-auto mb-4 text-primary" />
+          <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-12 w-12 animate-pulse mx-auto mb-4" />
           <p className="text-muted-foreground">Connecting...</p>
         </div>
       </div>
@@ -54,19 +54,15 @@ const Dashboard = () => {
   }
 
   // Client interface
-  if (userRole === 'client') {
+  if (userRole === "client") {
     return (
       <div className="min-h-screen kitara-bg">
         <header className="kitara-header">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <Zap className="h-10 w-10 text-primary" />
-              </div>
+              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-10 w-10" />
               <div>
-                <h1 className="text-2xl font-cinzel text-secondary">
-                  KITARA
-                </h1>
+                <h1 className="text-2xl font-cinzel text-secondary">KITARA</h1>
                 <p className="text-sm text-muted-foreground">Client Portal</p>
               </div>
             </div>
@@ -115,13 +111,9 @@ const Dashboard = () => {
       <header className="kitara-header">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <Zap className="h-10 w-10 text-primary" />
-            </div>
+            <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-10 w-10" />
             <div>
-              <h1 className="text-2xl font-cinzel text-secondary">
-                KITARA
-              </h1>
+              <h1 className="text-2xl font-cinzel text-secondary">KITARA</h1>
               <p className="text-sm text-muted-foreground">Admin Dashboard</p>
             </div>
           </div>
@@ -145,9 +137,9 @@ const Dashboard = () => {
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="kitara-tab">
-              <Settings className="h-4 w-4 mr-2" />
-              Subscriptions
+            <TabsTrigger value="products" className="kitara-tab">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Products
             </TabsTrigger>
             <TabsTrigger value="users" className="kitara-tab">
               <Users className="h-4 w-4 mr-2" />
@@ -160,11 +152,19 @@ const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
-            <TicketsTab userId={user.id} />
+            <Card className="kitara-card">
+              <CardContent className="py-16 text-center">
+                <img src="/kitara/assets/mentor.png" alt="Kitara Mentor" className="h-32 w-32 mx-auto mb-6 drop-shadow-lg" />
+                <h2 className="text-3xl font-cinzel text-secondary mb-4">Welcome to KITARA</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Your premium platform for secure management, products, and user administration.
+                </p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="subscriptions" className="mt-6">
-            <SubscriptionsTab userId={user.id} />
+          <TabsContent value="products" className="mt-6">
+            <ProductsTab />
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">

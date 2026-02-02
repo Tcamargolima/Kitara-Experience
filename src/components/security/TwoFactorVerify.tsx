@@ -106,7 +106,7 @@ export const TwoFactorVerify = ({
       {attemptCount > 0 && (
         <Alert variant={attemptCount >= 3 ? "destructive" : "default"}>
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="font-fredoka">
+          <AlertDescription className="font-medium">
             {remainingAttempts > 0 
               ? `${remainingAttempts} tentativa${remainingAttempts > 1 ? 's' : ''} restante${remainingAttempts > 1 ? 's' : ''}`
               : "Conta será bloqueada após próximo erro"
@@ -117,29 +117,29 @@ export const TwoFactorVerify = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
             <Shield className="h-5 w-5" />
             Verificação 2FA 🛡️
           </CardTitle>
-          <CardDescription className="font-fredoka">
+          <CardDescription className="font-medium">
             Digite o código do seu aplicativo autenticador ou use um código de backup
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="totp" className="font-fredoka">
+              <TabsTrigger value="totp" className="font-medium">
                 <Key className="h-4 w-4 mr-1" />
                 Aplicativo
               </TabsTrigger>
-              <TabsTrigger value="backup" className="font-fredoka">
+              <TabsTrigger value="backup" className="font-medium">
                 Código Backup
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="totp" className="space-y-4">
               <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground font-fredoka">
+                <p className="text-sm text-muted-foreground font-medium">
                   Digite o código de 6 dígitos do seu aplicativo autenticador:
                 </p>
                 
@@ -162,7 +162,7 @@ export const TwoFactorVerify = ({
 
                 <Button 
                   onClick={handleVerifyTOTP} 
-                  className="w-full circus-button font-fredoka"
+                  className="w-full kitara-button"
                   disabled={loading || totpCode.length !== 6}
                 >
                   {loading ? "Verificando..." : "Verificar Código"}
@@ -172,7 +172,7 @@ export const TwoFactorVerify = ({
 
             <TabsContent value="backup" className="space-y-4">
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground font-fredoka">
+                <p className="text-sm text-muted-foreground font-medium">
                   Digite um dos seus códigos de backup (formato: XXXX-XXXX):
                 </p>
                 
@@ -200,14 +200,14 @@ export const TwoFactorVerify = ({
 
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription className="text-xs font-fredoka">
+                  <AlertDescription className="text-xs font-medium">
                     Cada código de backup só pode ser usado uma vez
                   </AlertDescription>
                 </Alert>
 
                 <Button 
                   onClick={handleVerifyBackup} 
-                  className="w-full circus-button font-fredoka"
+                  className="w-full kitara-button"
                   disabled={loading || backupCode.length !== 9}
                 >
                   {loading ? "Verificando..." : "Usar Código Backup"}

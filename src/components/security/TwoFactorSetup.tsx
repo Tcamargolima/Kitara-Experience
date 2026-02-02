@@ -135,35 +135,35 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
     return (
       <Card className="max-w-lg mx-auto">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
             <Shield className="h-5 w-5" />
-            Configurar 2FA 🎪
+            Configurar 2FA
           </CardTitle>
-          <CardDescription className="font-fredoka">
+          <CardDescription className="font-medium">
             Configure a autenticação de dois fatores para maior segurança
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <Alert>
             <Smartphone className="h-4 w-4" />
-            <AlertDescription className="font-fredoka">
+            <AlertDescription className="font-medium">
               <strong>Passo 1:</strong> Instale um aplicativo autenticador como Google Authenticator ou Authy
             </AlertDescription>
           </Alert>
 
           <div className="text-center space-y-4">
-            <p className="font-fredoka text-sm text-muted-foreground">
+            <p className="font-medium text-sm text-muted-foreground">
               Escaneie este QR Code com seu aplicativo autenticador:
             </p>
             
             {qrCodeUrl && (
-              <div className="inline-block p-4 bg-white rounded-lg">
-                <img src={qrCodeUrl} alt="QR Code 2FA" className="mx-auto" />
+              <div className="inline-block p-4 bg-card rounded-lg border border-secondary/20">
+                <img src={qrCodeUrl} alt="QR Code 2FA" className="mx-auto bg-white p-2 rounded" />
               </div>
             )}
 
             <div className="space-y-2">
-              <Label className="font-fredoka text-sm">Ou insira manualmente:</Label>
+              <Label className="font-medium text-sm">Ou insira manualmente:</Label>
               <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
                 <code className="flex-1 text-xs break-all">{secret}</code>
                 <Button size="sm" variant="outline" onClick={copySecret}>
@@ -179,7 +179,7 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
             </Button>
             <Button 
               onClick={() => setStep('verify')} 
-              className="flex-1 circus-button font-fredoka"
+              className="flex-1 kitara-button"
             >
               Próximo
             </Button>
@@ -193,11 +193,11 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
     return (
       <Card className="max-w-lg mx-auto">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
             <Key className="h-5 w-5" />
-            Verificar 2FA 🎯
+            Verificar 2FA
           </CardTitle>
-          <CardDescription className="font-fredoka">
+          <CardDescription className="font-medium">
             Digite o código de 6 dígitos do seu aplicativo autenticador
           </CardDescription>
         </CardHeader>
@@ -220,7 +220,7 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
               </InputOTP>
             </div>
 
-            <p className="text-sm text-muted-foreground font-fredoka">
+            <p className="text-sm text-muted-foreground font-medium">
               O código muda a cada 30 segundos
             </p>
           </div>
@@ -236,7 +236,7 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
             </Button>
             <Button 
               onClick={handleVerifyCode} 
-              className="flex-1 circus-button font-fredoka"
+              className="flex-1 kitara-button"
               disabled={loading || verificationCode.length !== 6}
             >
               {loading ? "Verificando..." : "Verificar"}
@@ -250,25 +250,25 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
   return (
     <Card className="max-w-lg mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+        <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
           <CheckCircle className="h-5 w-5" />
           2FA Ativado! 🎪
         </CardTitle>
-        <CardDescription className="font-fredoka">
+        <CardDescription className="font-medium">
           Salve os códigos de backup em local seguro
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <Alert>
           <Key className="h-4 w-4" />
-          <AlertDescription className="font-fredoka">
+          <AlertDescription className="font-medium">
             <strong>Importante:</strong> Guarde estes códigos de backup. Você pode usá-los se perder acesso ao seu aplicativo autenticador.
           </AlertDescription>
         </Alert>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="font-fredoka font-medium">Códigos de Backup</Label>
+            <Label className="font-medium font-medium">Códigos de Backup</Label>
             <Button size="sm" variant="outline" onClick={downloadBackupCodes}>
               <Download className="h-3 w-3 mr-1" />
               Baixar
@@ -289,7 +289,7 @@ export const TwoFactorSetup = ({ userEmail, onSetupComplete, onCancel }: TwoFact
 
         <Button 
           onClick={handleFinishSetup} 
-          className="w-full circus-button font-fredoka"
+          className="w-full kitara-button"
         >
           Finalizar Configuração
         </Button>

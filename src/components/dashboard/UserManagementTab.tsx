@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Shield, CheckCircle2 } from "lucide-react";
 
+// Import dialog for creating new users
+import CreateUserDialog from "./CreateUserDialog";
+
 interface UserWithRole {
   id: string;
   email: string;
-  role: 'admin' | 'client';
+  role: "admin" | "client";
   created_at: string;
 }
 
@@ -24,33 +27,33 @@ export const UserManagementTab = () => {
     setLoading(true);
     try {
       const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
 
       const usersWithRoles = await Promise.all(
         (profiles || []).map(async (profile) => {
           const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', profile.id)
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", profile.id)
             .single();
 
           return {
             id: profile.id,
             email: profile.email,
-            role: (roleData?.role as 'admin' | 'client') || 'client',
+            role: (roleData?.role as "admin" | "client") || "client",
             created_at: profile.created_at,
           };
-        })
+        }),
       );
 
       setUsers(usersWithRoles);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error fetching users:', error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error fetching users:", error);
       toast({
         title: "Error loading users",
         description: errorMessage,
@@ -65,17 +68,17 @@ export const UserManagementTab = () => {
     fetchUsers();
 
     const channel = supabase
-      .channel('user-roles-changes')
+      .channel("user-roles-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'user_roles',
+          event: "*",
+          schema: "public",
+          table: "user_roles",
         },
         () => {
           fetchUsers();
-        }
+        },
       )
       .subscribe();
 
@@ -85,16 +88,25 @@ export const UserManagementTab = () => {
   }, []);
 
   const filteredUsers = users.filter(
-    (user) =>
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (user) => user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'admin':
-        return <Badge className="bg-secondary text-secondary-foreground"><Shield className="w-3 h-3 mr-1" />Admin</Badge>;
-      case 'client':
-        return <Badge variant="outline"><CheckCircle2 className="w-3 h-3 mr-1" />Client</Badge>;
+      case "admin":
+        return (
+          <Badge className="bg-secondary text-secondary-foreground">
+            <Shield className="w-3 h-3 mr-1" />
+            Admin
+          </Badge>
+        );
+      case "client":
+        return (
+          <Badge variant="outline">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            Client
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{role}</Badge>;
     }
@@ -110,6 +122,11 @@ export const UserManagementTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* New user creation button */}
+      <div className="flex justify-end">
+        <CreateUserDialog onUserCreated={fetchUsers} />
+      </div>
+
       <Card className="kitara-card">
         <CardHeader>
           <CardTitle className="font-cinzel text-secondary">User Management</CardTitle>

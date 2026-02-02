@@ -189,11 +189,11 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
   return (
     <Card className="w-full max-w-lg mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-bungee text-primary">
+        <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
           <Shield className="h-5 w-5" />
           Login Seguro MOSKINO 🎪
         </CardTitle>
-        <CardDescription className="font-fredoka">
+        <CardDescription className="font-medium">
           Entre com suas credenciais para acessar o sistema
         </CardDescription>
       </CardHeader>
@@ -202,7 +202,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
         {loginAttempts > 0 && !isLocked && (
           <Alert variant={loginAttempts >= 3 ? "destructive" : "default"}>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="font-fredoka">
+            <AlertDescription className="font-medium">
               {loginAttempts >= 3 ? (
                 <span>⚠️ Atenção: {5 - loginAttempts} tentativas restantes</span>
               ) : (
@@ -215,7 +215,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
         {isLocked && (
           <Alert variant="destructive">
             <Lock className="h-4 w-4" />
-            <AlertDescription className="font-fredoka">
+            <AlertDescription className="font-medium">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Conta bloqueada por {Math.ceil(lockTimeRemaining / 60)} minutos
@@ -227,7 +227,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
         {/* Credenciais padrão (apenas para demonstração) */}
         <Alert>
           <CheckCircle className="h-4 w-4" />
-          <AlertDescription className="font-fredoka text-sm">
+            <AlertDescription className="font-medium text-sm">
             <strong>Demo - Credenciais:</strong><br />
             Usuário: <code>admin</code> ou <code>{DEFAULT_ADMIN_CREDENTIALS.email}</code><br />
             Senha: <code>{DEFAULT_ADMIN_CREDENTIALS.password}</code>
@@ -238,7 +238,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="font-fredoka">Email/Usuário</Label>
+            <Label htmlFor="email" className="font-medium">Email/Usuário</Label>
             <Input
               id="email"
               type="text"
@@ -246,12 +246,12 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading || isLocked}
-              className="font-fredoka"
+              className="font-medium"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="font-fredoka">Senha</Label>
+            <Label htmlFor="password" className="font-medium">Senha</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -260,7 +260,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
                 value={password}
                 onChange={(e) => handlePasswordChange(e.target.value)}
                 disabled={loading || isLocked}
-                className="font-fredoka pr-10"
+                className="font-medium pr-10"
               />
               <Button
                 type="button"
@@ -282,10 +282,10 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
             {password && (
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-fredoka text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Força da senha:
                   </span>
-                  <span className={`text-xs font-fredoka font-medium ${
+                  <span className={`text-xs font-medium font-medium ${
                     passwordStrength < 40 ? 'text-red-500' : 
                     passwordStrength < 80 ? 'text-yellow-500' : 'text-green-500'
                   }`}>
@@ -303,7 +303,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
           <Button 
             onClick={handleLogin}
             disabled={loading || isLocked || !email || !password}
-            className="w-full circus-button font-fredoka"
+            className="w-full kitara-button"
           >
             {loading ? "Entrando..." : "Entrar no Circo"}
           </Button>
@@ -313,7 +313,7 @@ export const SecureLogin = ({ onLoginSuccess, onLoginFailed, loading }: SecureLo
         {password && !SecurityService.validatePassword(password).isValid && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="font-fredoka text-sm">
+            <AlertDescription className="font-medium text-sm">
               <strong>Requisitos da senha:</strong>
               <ul className="mt-1 space-y-1 text-xs">
                 <li className={password.length >= 8 ? 'text-green-500' : 'text-red-500'}>

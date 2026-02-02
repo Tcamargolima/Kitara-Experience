@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Zap, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
-  
+
   const { isAuthenticated, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const Auth = () => {
     } else {
       result = await signIn(email, password);
     }
-    
+
     if (result.success) {
       toast({
         title: "Success",
@@ -72,18 +72,16 @@ const Auth = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <Zap className="h-20 w-20 text-primary drop-shadow-lg" />
+              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-16 w-16 drop-shadow-lg" />
               <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
             </div>
           </div>
-          <CardTitle className="kitara-title text-4xl font-cinzel mb-2">
-            KITARA
-          </CardTitle>
+          <CardTitle className="kitara-title text-4xl font-cinzel mb-2">KITARA</CardTitle>
           <CardDescription className="text-lg text-muted-foreground">
             {isSignUp ? "Create your account" : "Sign in to continue"}
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
@@ -108,14 +106,14 @@ const Auth = () => {
                 className="kitara-input"
               />
             </div>
-            <Button 
-              onClick={handleAuth} 
+            <Button
+              onClick={handleAuth}
               className="kitara-button w-full"
               disabled={loading}
             >
               {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
             </Button>
-            
+
             <div className="text-center">
               <button
                 type="button"
