@@ -7,7 +7,6 @@ export const IOSInstallInstructions = () => {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Detect iOS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator as any).standalone;
 
@@ -28,7 +27,7 @@ export const IOSInstallInstructions = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-md">
-      <Card className="border-2 border-primary shadow-lg">
+      <Card className="kitara-card shadow-lg">
         <CardHeader className="relative pb-3">
           <Button
             variant="ghost"
@@ -38,11 +37,11 @@ export const IOSInstallInstructions = () => {
           >
             <X className="h-4 w-4" />
           </Button>
-          <CardTitle className="flex items-center gap-2">
-            🎪 Instalar MOSKINO no iPhone
+          <CardTitle className="flex items-center gap-2 font-cinzel text-secondary">
+            ⚡ Install KITARA on iPhone
           </CardTitle>
           <CardDescription>
-            Para uma melhor experiência, adicione o app à sua tela inicial
+            For a better experience, add the app to your home screen
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -52,8 +51,8 @@ export const IOSInstallInstructions = () => {
                 <Share className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-medium">1. Toque no botão de compartilhar</p>
-                <p className="text-muted-foreground">No menu inferior do Safari</p>
+                <p className="font-medium">1. Tap the share button</p>
+                <p className="text-muted-foreground">In Safari's bottom menu</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -61,8 +60,8 @@ export const IOSInstallInstructions = () => {
                 <Plus className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-medium">2. Selecione "Adicionar à Tela de Início"</p>
-                <p className="text-muted-foreground">Role para baixo nas opções</p>
+                <p className="font-medium">2. Select "Add to Home Screen"</p>
+                <p className="text-muted-foreground">Scroll down in the options</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -70,13 +69,13 @@ export const IOSInstallInstructions = () => {
                 <span className="text-primary font-bold">3</span>
               </div>
               <div>
-                <p className="font-medium">3. Confirme</p>
-                <p className="text-muted-foreground">Toque em "Adicionar" no topo</p>
+                <p className="font-medium">3. Confirm</p>
+                <p className="text-muted-foreground">Tap "Add" at the top</p>
               </div>
             </div>
           </div>
-          <Button onClick={handleDismiss} variant="outline" className="w-full">
-            Entendi
+          <Button onClick={handleDismiss} variant="outline" className="w-full kitara-button-outline">
+            Got it
           </Button>
         </CardContent>
       </Card>

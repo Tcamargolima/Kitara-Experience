@@ -1,5 +1,5 @@
-const CACHE_NAME = 'moskino-v1';
-const RUNTIME_CACHE = 'moskino-runtime';
+const CACHE_NAME = 'kitara-v1';
+const RUNTIME_CACHE = 'kitara-runtime';
 
 // Assets to cache on install
 const PRECACHE_URLS = [
@@ -73,7 +73,6 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(request)
         .then((response) => {
-          // Don't cache non-successful responses
           if (!response || response.status !== 200) {
             return response;
           }
@@ -86,7 +85,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Return offline page for navigation requests
           if (request.mode === 'navigate') {
             return caches.match('/offline.html');
           }
@@ -103,21 +101,20 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncData() {
-  // Implementar sincronização de dados offline quando necessário
   console.log('Background sync executed');
 }
 
 // Push notifications
 self.addEventListener('push', (event) => {
   const options = {
-    body: event.data ? event.data.text() : 'Nova notificação do MOSKINO',
+    body: event.data ? event.data.text() : 'New notification from KITARA',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-192x192.png',
     vibrate: [200, 100, 200],
   };
 
   event.waitUntil(
-    self.registration.showNotification('MOSKINO', options)
+    self.registration.showNotification('KITARA', options)
   );
 });
 

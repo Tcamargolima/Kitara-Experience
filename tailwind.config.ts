@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'fredoka': ['Fredoka', 'sans-serif'],
-				'bungee': ['Bungee', 'sans-serif'],
+				'cinzel': ['Cinzel', 'serif'],
+				'inter': ['Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

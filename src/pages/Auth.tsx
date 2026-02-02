@@ -1,27 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Tent, Sparkles, PartyPopper, Star } from "lucide-react";
+import { Zap, Sparkles } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [name, setName] = useState("");
-  const [smsCode, setSmsCode] = useState("");
-  const [step, setStep] = useState<"phone" | "code" | "email">("email");
   const [isSignUp, setIsSignUp] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
-  const [authMode, setAuthMode] = useState<"email" | "phone">("email");
   
-  const { isAuthenticated, loading, sendSmsCode, verifyPhone, signInWithPhone, signIn } = useAuth();
+  const { isAuthenticated, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -31,345 +23,109 @@ const Auth = () => {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  const handleEmailAuth = async () => {
+  const handleAuth = async () => {
     if (!email.trim() || !password.trim()) {
       toast({
-        title: "Erro",
-        description: "Por favor, preencha email e senha",
+        title: "Error",
+        description: "Please fill in email and password",
         variant: "destructive",
       });
       return;
     }
-
-
-    const result = await signIn(email, password);
-    
-    if (result.success) {
-      toast({
-        title: "Sucesso",
-        description: "Login realizado com sucesso!",
-      });
-      navigate("/dashboard");
-    } else {
-      toast({
-        title: "Erro",
-        description: result.error || "Erro no login",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSendCode = async () => {
-    if (!phone.trim()) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira seu telefone",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (isSignUp && !name.trim()) {
-      toast({
-        title: "Erro", 
-        description: "Por favor, insira seu nome",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const result = await sendSmsCode(phone);
-    
-    if (result.success) {
-      setCodeSent(true);
-      setStep("code");
-      toast({
-        title: "Código enviado",
-        description: `Código SMS enviado para ${phone}${result.code ? ` (Dev: ${result.code})` : ''}`,
-      });
-    } else {
-      toast({
-        title: "Erro",
-        description: result.error || "Erro ao enviar código SMS",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleVerifyCode = async () => {
-    if (smsCode.length !== 6) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira o código de 6 dígitos",
-        variant: "destructive",
-      });
-      return;
-    }
-
 
     let result;
     if (isSignUp) {
-      result = await verifyPhone(phone, smsCode, name);
+      result = await signUp(email, password);
     } else {
-      result = await signInWithPhone(phone, smsCode);
+      result = await signIn(email, password);
     }
-
+    
     if (result.success) {
       toast({
-        title: "Sucesso",
-        description: isSignUp ? "Conta criada com sucesso!" : "Login realizado com sucesso!",
+        title: "Success",
+        description: isSignUp ? "Account created successfully!" : "Login successful!",
       });
       navigate("/dashboard");
     } else {
       toast({
-        title: "Erro",
-        description: result.error || "Código inválido",
+        title: "Error",
+        description: result.error || "Authentication failed",
         variant: "destructive",
       });
     }
-  };
-
-  const resetForm = () => {
-    setEmail("");
-    setPassword("");
-    setPhone("");
-    setName("");
-    setSmsCode("");
-    setStep(authMode === "email" ? "email" : "phone");
-    setCodeSent(false);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen circus-bg flex items-center justify-center">
-        <div className="circus-stars">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-accent mx-auto mb-4"></div>
-          <p className="text-primary font-fredoka font-medium">Preparando o espetáculo...</p>
+      <div className="min-h-screen kitara-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto mb-4"></div>
+          <p className="text-primary">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen circus-bg flex items-center justify-center">
-      <Card className="circus-card w-full max-w-md shadow-2xl">
+    <div className="min-h-screen kitara-bg flex items-center justify-center">
+      <Card className="kitara-card w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-6 circus-stars">
+          <div className="flex justify-center mb-6">
             <div className="relative">
-              <Tent className="h-20 w-20 text-primary drop-shadow-lg animate-pulse" />
-              <PartyPopper className="h-6 w-6 text-accent absolute -top-1 -right-1 animate-spin" />
-              <Star className="h-4 w-4 text-secondary absolute -bottom-1 -left-1 animate-pulse delay-500" />
-              <Sparkles className="h-5 w-5 text-secondary absolute top-1 left-1 animate-pulse delay-1000" />
+              <Zap className="h-20 w-20 text-primary drop-shadow-lg" />
+              <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
             </div>
           </div>
-          <CardTitle className="circus-title text-4xl font-bungee mb-2">
-            MOSKINO
+          <CardTitle className="kitara-title text-4xl font-cinzel mb-2">
+            KITARA
           </CardTitle>
-          <CardDescription className="text-lg font-fredoka font-medium text-foreground">
-            🎪 {authMode === "email" 
-              ? "Entre no Circo Digital" 
-              : step === "phone" 
-                ? "Garanta sua entrada no espetáculo" 
-                : "Digite o código mágico"
-            } 🎪
+          <CardDescription className="text-lg text-muted-foreground">
+            {isSignUp ? "Create your account" : "Sign in to continue"}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {/* Auth Mode Selector */}
-          <div className="flex gap-3 mb-6">
-            <Button 
-              variant={authMode === "email" ? "default" : "outline"}
-              onClick={() => {
-                setAuthMode("email");
-                setStep("email");
-                resetForm();
-              }}
-              className="flex-1 font-fredoka font-bold"
-            >
-              ✉️ Email
-            </Button>
-            <Button 
-              variant={authMode === "phone" ? "default" : "outline"}
-              onClick={() => {
-                setAuthMode("phone");
-                setStep("phone");
-                resetForm();
-              }}
-              className="flex-1 font-fredoka font-bold"
-            >
-              📱 Telefone
-            </Button>
-          </div>
-
-          {authMode === "email" ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="font-fredoka font-medium">🎭 Email do Artista</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="font-fredoka"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="font-fredoka font-medium">🔑 Senha Mágica</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Digite sua senha ou 123123"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="font-fredoka"
-                />
-              </div>
-              <Button 
-                onClick={handleEmailAuth} 
-                className="circus-button w-full font-fredoka"
-                disabled={loading}
-              >
-                {loading ? "Preparando entrada..." : "🎪 Entrar no Circo 🎪"}
-              </Button>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-secondary font-cinzel">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="kitara-input"
+              />
             </div>
-          ) : (
-            <Tabs value={isSignUp ? "signup" : "signin"} onValueChange={(value) => {
-              setIsSignUp(value === "signup");
-              resetForm();
-            }}>
-              <TabsList className="grid w-full grid-cols-2 circus-card">
-                <TabsTrigger value="signin" className="font-fredoka font-bold">🎭 Entrar</TabsTrigger>
-                <TabsTrigger value="signup" className="font-fredoka font-bold">⭐ Cadastrar</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="signin" className="space-y-4">
-                {step === "phone" ? (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="font-fredoka font-medium">📱 Telefone Circense</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+55 (11) 99999-9999"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="font-fredoka"
-                      />
-                    </div>
-                    <Button 
-                      onClick={handleSendCode} 
-                      className="circus-button w-full font-fredoka"
-                      disabled={loading}
-                    >
-                      {loading ? "Enviando código..." : "✨ Enviar Código Mágico ✨"}
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label className="font-fredoka font-medium">🎪 Código Mágico (ou use 123123)</Label>
-                      <div className="flex justify-center">
-                        <InputOTP value={smsCode} onChange={setSmsCode} maxLength={6}>
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
-                          </InputOTPGroup>
-                        </InputOTP>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleVerifyCode} 
-                      className="circus-button w-full font-fredoka"
-                      disabled={loading}
-                    >
-                      {loading ? "Verificando..." : "🎭 Entrar no Espetáculo 🎭"}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setStep("phone")} 
-                      className="w-full font-fredoka"
-                    >
-                      ← Voltar
-                    </Button>
-                  </>
-                )}
-              </TabsContent>
-
-              <TabsContent value="signup" className="space-y-4">
-                {step === "phone" ? (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="font-fredoka font-medium">🎨 Nome do Artista</Label>
-                      <Input
-                        id="name"
-                        placeholder="Seu nome completo"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="font-fredoka"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone-signup" className="font-fredoka font-medium">📱 Telefone</Label>
-                      <Input
-                        id="phone-signup"
-                        type="tel"
-                        placeholder="+55 (11) 99999-9999"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="font-fredoka"
-                      />
-                    </div>
-                    <Button 
-                      onClick={handleSendCode} 
-                      className="circus-button w-full font-fredoka"
-                      disabled={loading}
-                    >
-                      {loading ? "Enviando..." : "✨ Enviar Código de Cadastro ✨"}
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label className="font-fredoka font-medium">🎪 Código Mágico (ou use 123123)</Label>
-                      <div className="flex justify-center">
-                        <InputOTP value={smsCode} onChange={setSmsCode} maxLength={6}>
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
-                          </InputOTPGroup>
-                        </InputOTP>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleVerifyCode} 
-                      className="circus-button w-full font-fredoka"
-                      disabled={loading}
-                    >
-                      {loading ? "Criando conta..." : "🌟 Juntar-se ao Circo 🌟"}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setStep("phone")} 
-                      className="w-full font-fredoka"
-                    >
-                      ← Voltar
-                    </Button>
-                  </>
-                )}
-              </TabsContent>
-            </Tabs>
-          )}
-
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-secondary font-cinzel">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="kitara-input"
+              />
+            </div>
+            <Button 
+              onClick={handleAuth} 
+              className="kitara-button w-full"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+            </Button>
+            
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-secondary hover:underline"
+              >
+                {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+              </button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
