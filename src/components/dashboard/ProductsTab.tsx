@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Check, X, ShoppingCart } from "lucide-react";
 import {
   getActiveTickets,
-  applyElixir,
   createOrder,
   type Ticket,
   type ElixirValidation,
 } from "@/lib/api";
+import ElixirCodeInput from "@/components/checkout/ElixirCodeInput";
 
 /**
  * ProductsTab - Now shows Tickets for purchase
@@ -138,45 +138,17 @@ const ProductsTab = () => {
           <CardDescription>Tem um código de desconto? Aplique antes de comprar.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
-            <Input
-              value={elixirCode}
-              onChange={(e) => {
-                setElixirCode(e.target.value.toUpperCase());
-                setElixirValidation(null);
-              }}
-              placeholder="ELIXIR2024"
-              className="kitara-input font-mono"
-              disabled={validatingElixir}
-            />
-            <Button
-              onClick={handleApplyElixir}
-              disabled={validatingElixir || !elixirCode.trim()}
-              variant="outline"
-              className="border-secondary text-secondary"
-            >
-              {validatingElixir ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Aplicar"
-              )}
-            </Button>
-          </div>
-          {elixirValidation && (
-            <div className={`mt-2 flex items-center gap-2 text-sm ${elixirValidation.valid ? "text-primary" : "text-destructive"}`}>
-              {elixirValidation.valid ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <X className="h-4 w-4" />
-              )}
-              {elixirValidation.message}
-              {elixirValidation.valid && elixirValidation.discount_percent && (
-                <Badge variant="outline" className="ml-2">
-                  -{elixirValidation.discount_percent}%
-                </Badge>
-              )}
-            </div>
-          )}
+          <ElixirCodeInput
+            value={elixirCode}
+            onApplied={(res) => {
+              setElixirValidation(res);
+              if (res?.valid) {
+                toast({ title: "Código válido!", description: `Desconto de ${res.discount_percent}% aplicado.` });
+              } else if (res) {
+                toast({ title: "Código inválido", description: res.message, variant: "destructive" });
+              }
+            }}
+          />
         </CardContent>
       </Card>
 

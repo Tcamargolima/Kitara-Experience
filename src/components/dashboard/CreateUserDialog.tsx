@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { adminCreateUser } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,8 +53,7 @@ const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
       if (error) throw error;
       const userId = data?.user?.id;
       if (userId) {
-        await supabase.from("profiles").insert({ id: userId, email, role });
-        await supabase.from("user_roles").insert({ user_id: userId, role });
+        await adminCreateUser(userId, email, role);
       }
       toast({ title: "Success", description: "User created successfully" });
       setOpen(false);

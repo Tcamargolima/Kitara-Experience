@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { Clock, Mail, LogOut } from "lucide-react";
 
 export const PendingApprovalScreen = () => {
-  const { signOut, profile } = useAuth();
+  const { signOut, profile } = useSecureAuth();
 
   return (
     <div className="min-h-screen kitara-bg flex items-center justify-center p-4">

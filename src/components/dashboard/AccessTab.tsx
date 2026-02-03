@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getMyAccesses } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -27,19 +27,7 @@ const AccessTab = ({ userId }: AccessTabProps) => {
 
   const fetchAccesses = async () => {
     try {
-      const { data, error } = await (supabase as any)
-        .from("acessos_blankapp")
-        .select(`
-          *,
-          tickets_blankapp (
-            evento,
-            local_evento
-          )
-        `)
-        .eq("usuario_id", userId)
-        .order("data_acesso", { ascending: false });
-
-      if (error) throw error;
+      const data = await getMyAccesses(userId);
       setAccesses(data || []);
     } catch (error: any) {
       toast({

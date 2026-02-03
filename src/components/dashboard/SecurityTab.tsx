@@ -21,7 +21,7 @@ import {
 import { SecuritySettings } from "@/components/security/SecuritySettings";
 import { TwoFactorVerify } from "@/components/security/TwoFactorVerify";
 import { useSecurity } from "@/hooks/useSecurity";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
 import { SecurityService, DEFAULT_ADMIN_CREDENTIALS } from "@/lib/security";
 
@@ -30,7 +30,7 @@ interface SecurityTabProps {
 }
 
 export const SecurityTab = ({ userId }: SecurityTabProps) => {
-  const { user, profile } = useAuth();
+  const { user, profile } = useSecureAuth();
   const { securityState, enable2FA, disable2FA, addLoginAttempt } = useSecurity(userId);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('settings');

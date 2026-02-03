@@ -221,19 +221,45 @@ export async function getMyTickets(): Promise<Order[]> {
 // ==========================================
 
 export async function getActiveTickets(): Promise<Ticket[]> {
-  // Tickets table allows public SELECT via RLS
-  const { data, error } = await supabase
-    .from("tickets")
-    .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
-  
+  // Use RPC to fetch active tickets to avoid direct table access from frontend
+  const { data, error } = await supabase.rpc("get_active_tickets");
+
   if (error) {
-    console.error("[API] getActiveTickets error:", error);
+    console.error("[API] get_active_tickets error:", error);
     return [];
   }
-  
+
   return (data as Ticket[]) ?? [];
+}
+
+export async function adminCreateUser(
+  userId: string,
+  email: string,
+  role: string
+): Promise<{ success: boolean; message?: string }> {
+  const { data, error } = await supabase.rpc("admin_create_user", {
+    p_user_id: userId,
+    p_email: email,
+    p_role: role,
+  });
+
+  if (error) {
+    console.error("[API] admin_create_user error:", error);
+    return { success: false, message: error.message };
+  }
+
+  return (data as { success: boolean; message?: string }) ?? { success: false };
+}
+
+export async function getMyAccesses(userId: string): Promise<any[]> {
+  const { data, error } = await supabase.rpc("get_my_accesses", { p_user_id: userId });
+
+  if (error) {
+    console.error("[API] get_my_accesses error:", error);
+    return [];
+  }
+
+  return (data as any[]) ?? [];
 }
 
 // ==========================================
