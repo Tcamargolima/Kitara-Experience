@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Shield, CheckCircle2 } from "lucide-react";
+import { Search, Shield, CheckCircle2, Loader2 } from "lucide-react";
+import { adminGetUsers, type UserProfile } from "@/lib/api";
 
-// Import dialog for creating new users
-import CreateUserDialog from "./CreateUserDialog";
-
-interface UserWithRole {
-  id: string;
-  email: string;
-  role: "admin" | "client";
-  created_at: string;
-}
-
+/**
+ * UserManagementTab - Uses RPC instead of direct supabase.from()
+ */
 export const UserManagementTab = () => {
-  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
@@ -26,37 +18,13 @@ export const UserManagementTab = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      const usersWithRoles = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", profile.id)
-            .single();
-
-          return {
-            id: profile.id,
-            email: profile.email,
-            role: (roleData?.role as "admin" | "client") || "client",
-            created_at: profile.created_at,
-          };
-        }),
-      );
-
-      setUsers(usersWithRoles);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const data = await adminGetUsers();
+      setUsers(data);
+    } catch (error) {
       console.error("Error fetching users:", error);
       toast({
-        title: "Error loading users",
-        description: errorMessage,
+        title: "Erro",
+        description: "Não foi possível carregar os usuários.",
         variant: "destructive",
       });
     } finally {
@@ -66,29 +34,10 @@ export const UserManagementTab = () => {
 
   useEffect(() => {
     fetchUsers();
-
-    const channel = supabase
-      .channel("user-roles-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_roles",
-        },
-        () => {
-          fetchUsers();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
-  const filteredUsers = users.filter(
-    (user) => user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getRoleBadge = (role: string) => {
@@ -115,28 +64,23 @@ export const UserManagementTab = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* New user creation button */}
-      <div className="flex justify-end">
-        <CreateUserDialog onUserCreated={fetchUsers} />
-      </div>
-
       <Card className="kitara-card">
         <CardHeader>
-          <CardTitle className="font-cinzel text-secondary">User Management</CardTitle>
-          <CardDescription>Manage users and their roles</CardDescription>
+          <CardTitle className="font-cinzel text-secondary">Gerenciamento de Usuários</CardTitle>
+          <CardDescription>Dados obtidos via RPC admin_get_users (sem acesso direto)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by email..."
+              placeholder="Buscar por email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 kitara-input"
@@ -147,14 +91,14 @@ export const UserManagementTab = () => {
 
       <Card className="kitara-card">
         <CardHeader>
-          <CardTitle className="font-cinzel text-secondary">Users ({filteredUsers.length})</CardTitle>
+          <CardTitle className="font-cinzel text-secondary">Usuários ({filteredUsers.length})</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {filteredUsers.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">No users found</p>
+            <p className="text-center text-muted-foreground py-4">Nenhum usuário encontrado</p>
           ) : (
             filteredUsers.map((user) => (
-              <Card key={user.id} className="kitara-card">
+              <Card key={user.id} className="bg-background/50">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
@@ -163,7 +107,10 @@ export const UserManagementTab = () => {
                         {getRoleBadge(user.role)}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Joined {new Date(user.created_at).toLocaleDateString()}
+                        {user.display_name || "Sem nome"} • MFA: {user.mfa_enabled ? "Ativo" : "Inativo"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Cadastro: {new Date(user.created_at).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
