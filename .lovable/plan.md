@@ -1,302 +1,442 @@
 
-# KITARA - Full Backend Provisioning and Rebrand Plan
+# KITARA Security Architecture Restructuring Plan
 
-## Overview
+## Executive Summary
 
-This plan covers the complete transformation from MOSKINO to KITARA, including:
-1. **Supabase Backend Provisioning** - Create all required tables, functions, RLS policies, and storage buckets
-2. **Full Application Rebrand** - Update branding, theme, and visual identity to KITARA
+This plan restructures the KITARA application from a frontend-direct database access architecture to a fully secured RPC/Edge Function-based architecture. No visual/layout changes will be made. All data access will be mediated through secure backend functions.
 
 ---
 
-## PART 1: SUPABASE BACKEND PROVISIONING
+## PHASE 1: Secure Database Schema
 
-### 1.1 Database Schema Creation
+### 1.1 New Tables to Create
 
-Create the following tables with proper relationships and constraints:
+| Table | Purpose |
+|-------|---------|
+| `user_profiles` | Extended user data (replaces direct profiles access) |
+| `invites` | Invite code system for controlled registration |
+| `elixir_coupons` | Discount coupon system |
+| `tickets` | Event ticket definitions |
+| `orders` | User purchases linked to tickets |
+| `payments` | Payment records from gateway webhooks |
+| `transactions_ledger` | Immutable financial transaction log |
+| `audit_logs` | Immutable security/action audit trail |
+| `security_events` | Login attempts, MFA events, suspicious activity |
+
+### 1.2 Table Schemas
 
 ```text
-+------------------+       +------------------+       +------------------+
-|    profiles      |       |      assets      |       |    sessions      |
-+------------------+       +------------------+       +------------------+
-| id (PK, FK auth) |<------| user_id (FK)     |       | id (PK)          |
-| email (text)     |       | id (PK)          |       | user_id (FK)---->|
-| role (text)      |       | file_url (text)  |       | status (text)    |
-| created_at       |       | created_at       |       | created_at       |
-+------------------+       +------------------+       +------------------+
+┌─────────────────────────────────────────────────────────────────┐
+│ user_profiles                                                    │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK, FK auth.users)                                     │
+│ email (text)                                                     │
+│ display_name (text)                                              │
+│ invite_code_used (text, FK invites)                              │
+│ mfa_enabled (boolean, default false)                             │
+│ mfa_secret_encrypted (text)                                      │
+│ created_at (timestamptz)                                         │
+│ updated_at (timestamptz)                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ invites                                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ code (text, UNIQUE)                                              │
+│ created_by (uuid, FK auth.users)                                 │
+│ max_uses (integer, default 1)                                    │
+│ uses_count (integer, default 0)                                  │
+│ expires_at (timestamptz)                                         │
+│ is_active (boolean, default true)                                │
+│ created_at (timestamptz)                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ elixir_coupons                                                   │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ code (text, UNIQUE)                                              │
+│ discount_percent (integer, 0-100)                                │
+│ discount_fixed (numeric)                                         │
+│ max_uses (integer)                                               │
+│ uses_count (integer, default 0)                                  │
+│ valid_from (timestamptz)                                         │
+│ valid_until (timestamptz)                                        │
+│ is_active (boolean, default true)                                │
+│ created_at (timestamptz)                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ tickets                                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ name (text)                                                      │
+│ description (text)                                               │
+│ price (numeric)                                                  │
+│ stock (integer)                                                  │
+│ event_date (timestamptz)                                         │
+│ is_active (boolean, default true)                                │
+│ created_at (timestamptz)                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ orders                                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ user_id (uuid, FK auth.users)                                    │
+│ ticket_id (uuid, FK tickets)                                     │
+│ quantity (integer, default 1)                                    │
+│ original_price (numeric)                                         │
+│ discount_applied (numeric, default 0)                            │
+│ final_price (numeric)                                            │
+│ elixir_code_used (text)                                          │
+│ status (text: 'pending','paid','cancelled','refunded')           │
+│ created_at (timestamptz)                                         │
+│ paid_at (timestamptz)                                            │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ payments                                                         │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ order_id (uuid, FK orders)                                       │
+│ gateway (text: 'stripe','pix','manual')                          │
+│ gateway_event_id (text, UNIQUE)  -- idempotency key              │
+│ gateway_payload (jsonb)                                          │
+│ amount (numeric)                                                 │
+│ status (text: 'pending','success','failed')                      │
+│ processed_at (timestamptz)                                       │
+│ created_at (timestamptz)                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ transactions_ledger (APPEND-ONLY)                                │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ order_id (uuid, FK orders)                                       │
+│ payment_id (uuid, FK payments)                                   │
+│ user_id (uuid, FK auth.users)                                    │
+│ type (text: 'credit','debit','refund')                           │
+│ amount (numeric)                                                 │
+│ balance_after (numeric)                                          │
+│ description (text)                                               │
+│ created_at (timestamptz, default now())                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ audit_logs (IMMUTABLE)                                           │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ user_id (uuid)                                                   │
+│ action (text)                                                    │
+│ entity_type (text)                                               │
+│ entity_id (uuid)                                                 │
+│ old_data (jsonb)                                                 │
+│ new_data (jsonb)                                                 │
+│ ip_address (text)                                                │
+│ user_agent (text)                                                │
+│ created_at (timestamptz, default now())                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ security_events                                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ id (uuid, PK)                                                    │
+│ user_id (uuid)                                                   │
+│ event_type (text: 'login','logout','mfa_setup','mfa_verify')     │
+│ success (boolean)                                                │
+│ ip_address (text)                                                │
+│ user_agent (text)                                                │
+│ metadata (jsonb)                                                 │
+│ created_at (timestamptz, default now())                          │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**SQL Migration - Tables:**
-- `profiles` - User profiles linked to auth.users with role (admin/client)
-- `assets` - File references for user uploads
-- `sessions` - User session tracking
+### 1.3 RLS Policies (Minimal Direct Access)
 
-### 1.2 Role-Based Access Control
-
-Following security best practices, create a separate `user_roles` table:
+All sensitive tables will have RLS enabled with NO direct INSERT/UPDATE/DELETE policies for regular users. Only SECURITY DEFINER functions can modify data.
 
 ```text
-+------------------+
-|   user_roles     |
-+------------------+
-| id (PK)          |
-| user_id (FK)     |
-| role (enum)      |
-+------------------+
+Tables with NO direct write access:
+- orders (via RPC only)
+- payments (via Edge Function webhook only)
+- transactions_ledger (append via RPC only)
+- audit_logs (append via RPC only)
+- security_events (append via RPC only)
+- elixir_coupons (admin RPC only)
+- invites (admin RPC only)
 ```
 
-Create `app_role` enum type for proper role management.
-
-### 1.3 Security Definer Function
-
-Create `has_role()` function to prevent RLS infinite recursion:
-- Security definer function to check user roles safely
-- Used in RLS policies to determine access permissions
-
-### 1.4 RLS Policies
-
-**profiles table:**
-- Users can read their own profile
-- Users can update their own profile
-- Admins can read all profiles
-
-**assets table:**
-- Users can CRUD their own assets
-- Admins can CRUD all assets
-
-**sessions table:**
-- Users can CRUD their own sessions
-- Admins can CRUD all sessions
-
-### 1.5 Storage Buckets
-
-Create two public storage buckets:
-- `assets` - For general file storage
-- `avatars` - For user profile pictures
-
-With appropriate RLS policies for file access.
-
-### 1.6 Fix TypeScript Errors
-
-Update the edge function and hooks to resolve build errors:
-- Fix `send-sms/index.ts` - Type the error parameter
-- Update hooks to work with new schema
-
 ---
 
-## PART 2: FULL APPLICATION REBRAND TO KITARA
+## PHASE 2: RPC Functions (SECURITY DEFINER)
 
-### 2.1 Design System Updates
+### 2.1 Required RPCs
 
-**Color Palette (HSL format):**
-- Background: #050505 (matte black) → HSL: 0 0% 2%
-- Default text: #E5E5E5 (soft silver) → HSL: 0 0% 90%
-- Primary: #00FF9D (emerald neon glow) → HSL: 157 100% 50%
-- Secondary: #C5A059 (champagne gold) → HSL: 41 50% 55%
+| RPC Name | Purpose | Access |
+|----------|---------|--------|
+| `validate_invite(code)` | Check if invite code is valid/available | Public |
+| `consume_invite(code, user_id)` | Mark invite as used during signup | Auth |
+| `apply_elixir(code)` | Validate and return discount info | Auth |
+| `create_order(ticket_id, elixir_code)` | Create order with calculated discount | Auth |
+| `finalize_order_from_webhook(order_id, gateway_data)` | Process payment confirmation | Service Role |
+| `get_my_profile()` | Get current user's profile | Auth |
+| `get_my_tickets()` | Get current user's purchased tickets | Auth |
+| `admin_get_stats()` | Get dashboard statistics | Admin |
+| `admin_create_ticket(name, desc, price, stock)` | Create new ticket | Admin |
+| `admin_create_coupon(code, discount, max_uses)` | Create elixir coupon | Admin |
+| `admin_create_invite(max_uses, expires_at)` | Generate invite code | Admin |
+| `log_security_event(type, success, metadata)` | Record security events | Auth |
+| `setup_mfa(secret_encrypted)` | Enable MFA for user | Auth |
+| `verify_mfa_setup(token)` | Verify MFA during setup | Auth |
 
-### 2.2 Theme Implementation
-
-Update `src/index.css`:
-- New CSS custom properties for KITARA theme
-- Dark glassmorphism card styles
-- Backdrop blur effects
-- Gold border accents at 20% opacity
-- Neon green button glow effects
-- Noise/grain texture overlay
-
-### 2.3 Typography
-
-Add Google Fonts:
-- Headers (H1, H2, H3): Cinzel (elegant gold color)
-- Body/UI: Inter or Manrope
-
-### 2.4 Component Updates
-
-**Buttons:**
-- Neon green glow box-shadow
-- Dark background hover states
-
-**Inputs:**
-- Dark background
-- Thin gold border/underline
-
-**Cards:**
-- Dark glassmorphism surfaces
-- Backdrop blur
-- 1px gold border at 20% opacity
-
-### 2.5 Files to Update
-
-| File | Changes |
-|------|---------|
-| `index.html` | Title, meta tags, fonts, structured data → KITARA |
-| `public/manifest.json` | App name, short_name → KITARA |
-| `src/index.css` | Complete theme overhaul |
-| `tailwind.config.ts` | Font families, color system |
-| `src/pages/Index.tsx` | Replace MOSKINO branding |
-| `src/pages/Auth.tsx` | Update branding and styling |
-| `src/pages/Dashboard.tsx` | Update header and branding |
-| PWA components | Update messaging |
-
-### 2.6 PWA Updates
-
-- Update manifest.json with KITARA branding
-- Update service worker offline page
-- Update install prompts messaging
-
----
-
-## Technical Details
-
-### SQL Migration Script (Complete)
+### 2.2 RPC Implementation Pattern
 
 ```sql
--- 1. Create app_role enum
-CREATE TYPE public.app_role AS ENUM ('admin', 'client');
-
--- 2. Create profiles table
-CREATE TABLE public.profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email text NOT NULL,
-  role text NOT NULL CHECK (role IN ('admin', 'client')),
-  created_at timestamptz DEFAULT now()
-);
-
--- 3. Create user_roles table (for secure role checks)
-CREATE TABLE public.user_roles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  role app_role NOT NULL,
-  UNIQUE (user_id, role)
-);
-
--- 4. Create assets table
-CREATE TABLE public.assets (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
-  file_url text NOT NULL,
-  created_at timestamptz DEFAULT now()
-);
-
--- 5. Create sessions table
-CREATE TABLE public.sessions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
-  status text,
-  created_at timestamptz DEFAULT now()
-);
-
--- 6. Enable RLS
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.assets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
-
--- 7. Security definer function
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
-RETURNS boolean
-LANGUAGE sql
-STABLE
+CREATE OR REPLACE FUNCTION public.get_my_profile()
+RETURNS jsonb
+LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.user_roles
-    WHERE user_id = _user_id
-      AND role = _role
-  )
-$$;
-
--- 8. RLS Policies for profiles
-CREATE POLICY "Users can read own profile"
-  ON public.profiles FOR SELECT
-  USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile"
-  ON public.profiles FOR UPDATE
-  USING (auth.uid() = id);
-
-CREATE POLICY "Admins can read all profiles"
-  ON public.profiles FOR SELECT
-  USING (public.has_role(auth.uid(), 'admin'));
-
--- 9. RLS Policies for assets
-CREATE POLICY "Users can CRUD own assets"
-  ON public.assets FOR ALL
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Admins can CRUD all assets"
-  ON public.assets FOR ALL
-  USING (public.has_role(auth.uid(), 'admin'));
-
--- 10. RLS Policies for sessions
-CREATE POLICY "Users can CRUD own sessions"
-  ON public.sessions FOR ALL
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Admins can CRUD all sessions"
-  ON public.sessions FOR ALL
-  USING (public.has_role(auth.uid(), 'admin'));
-
--- 11. Create storage buckets
-INSERT INTO storage.buckets (id, name, public) VALUES ('assets', 'assets', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
-
--- 12. Storage RLS policies
-CREATE POLICY "Users can upload to assets"
-  ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'assets' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Users can read assets"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'assets');
-
-CREATE POLICY "Users can upload to avatars"
-  ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'avatars' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Users can read avatars"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'avatars');
-
--- 13. Profile trigger for new users
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public
-AS $$
+DECLARE
+  result jsonb;
 BEGIN
-  INSERT INTO public.profiles (id, email, role)
-  VALUES (new.id, new.email, 'client');
+  SELECT jsonb_build_object(
+    'id', up.id,
+    'email', up.email,
+    'display_name', up.display_name,
+    'mfa_enabled', up.mfa_enabled,
+    'role', ur.role,
+    'created_at', up.created_at
+  )
+  INTO result
+  FROM user_profiles up
+  LEFT JOIN user_roles ur ON ur.user_id = up.id
+  WHERE up.id = auth.uid();
   
-  INSERT INTO public.user_roles (user_id, role)
-  VALUES (new.id, 'client');
-  
-  RETURN new;
+  RETURN result;
 END;
 $$;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
-
-### Code Updates Summary
-
-1. **Fix edge function error** - Add proper error typing
-2. **Update useAuth.ts** - Adapt to new profiles schema
-3. **Remove old table references** - Update all components to use new schema
-4. **Update theme** - Complete CSS overhaul for KITARA design
-5. **Update all branding** - Replace MOSKINO with KITARA everywhere
 
 ---
 
-## Implementation Order
+## PHASE 3: Edge Functions
 
-1. Run database migration
-2. Fix TypeScript build errors
-3. Update theme and CSS
-4. Update HTML and manifest
-5. Update all page components
-6. Test authentication flow
+### 3.1 Edge Functions to Create
+
+| Function | Endpoint | Purpose |
+|----------|----------|---------|
+| `process-payment` | POST /process-payment | Webhook receiver for payment gateway |
+| `reconcile-payments` | POST /reconcile-payments | Scheduled job for payment reconciliation |
+| `create-support-session` | POST /create-support-session | Generate temporary support session ID |
+
+### 3.2 process-payment Edge Function
+
+```text
+Flow:
+1. Validate webhook signature (Stripe/Gateway specific)
+2. Parse gateway_event_id for idempotency
+3. Check if gateway_event_id already processed in payments table
+4. If new: call RPC finalize_order_from_webhook()
+5. Log to audit_logs
+6. Return 200 OK
+```
+
+### 3.3 create-support-session Edge Function
+
+```text
+Flow:
+1. Verify authenticated user
+2. Generate unique support_session_id (UUID + timestamp)
+3. Store in temporary sessions table with 24h TTL
+4. Return WhatsApp deep link with pre-filled message
+```
+
+---
+
+## PHASE 4: Secure Authentication Flow
+
+### 4.1 New Auth Flow Components
+
+```text
+Current Flow:
+  /auth → email/password → dashboard
+
+New Flow:
+  /auth → [Step 1: Invite Code]
+       → [Step 2: Email/Password Registration]
+       → [Step 3: MFA Setup (TOTP)]
+       → dashboard
+
+Returning User:
+  /auth → email/password → MFA verify → dashboard
+```
+
+### 4.2 New Hook: useSecureAuth
+
+Replace `useAuth` with `useSecureAuth` that:
+- Uses RPC `get_my_profile()` instead of direct table access
+- Enforces MFA verification before dashboard access
+- Logs all auth events via `log_security_event()` RPC
+
+### 4.3 New Auth Page Flow
+
+Create multi-step auth with:
+- `InviteCodeStep` - Validates invite via RPC
+- `SignUpStep` - Strong password validation, email signup
+- `MFASetupStep` - TOTP setup (reuse existing TwoFactorSetup)
+- `MFAVerifyStep` - TOTP verification on login
+
+---
+
+## PHASE 5: Checkout with Elixir Code
+
+### 5.1 Checkout Flow
+
+```text
+1. User selects ticket
+2. Optional: Enter "Elixir Code" (discount)
+3. Frontend calls RPC apply_elixir(code)
+   → Returns: { valid, discount_percent, discount_fixed, message }
+4. Frontend calls RPC create_order(ticket_id, elixir_code)
+   → Returns: { order_id, final_price, payment_url }
+5. Redirect to payment gateway
+6. Gateway webhook → Edge Function process-payment
+7. Edge Function → RPC finalize_order_from_webhook()
+8. User sees "Payment Confirmed" on return
+```
+
+### 5.2 Elixir Code UI
+
+Add optional input field in checkout:
+- Label: "Discount Code (Elixir)"
+- Button: "Apply"
+- Shows discount amount or error message
+
+---
+
+## PHASE 6: Admin Dashboard Restructure
+
+### 6.1 Remove All supabase.from() Calls
+
+Current components using direct access:
+- `AdminTab.tsx` - uses supabase.from() for stats
+- `ProductsTab.tsx` - uses supabase.from('products')
+- `UserManagementTab.tsx` - uses supabase.from('profiles')
+- `CreateUserDialog.tsx` - uses supabase.from() for inserts
+
+### 6.2 Replace with RPC Calls
+
+```typescript
+// Before
+const { data } = await supabase.from('profiles').select('*');
+
+// After
+const { data } = await supabase.rpc('admin_get_stats');
+```
+
+### 6.3 Admin Capabilities via RPC
+
+| Action | RPC |
+|--------|-----|
+| View stats | `admin_get_stats()` |
+| Create ticket | `admin_create_ticket()` |
+| Create coupon | `admin_create_coupon()` |
+| Create invite | `admin_create_invite()` |
+| View users | `admin_get_users()` |
+| Promote user | `admin_set_user_role()` |
+
+---
+
+## PHASE 7: WhatsApp Support Button
+
+### 7.1 Implementation
+
+```text
+Fixed Button (bottom-right):
+  Icon: WhatsApp
+  Position: fixed, z-50
+
+On Click:
+  1. Call Edge Function create-support-session
+  2. Receive: { session_id, whatsapp_url }
+  3. Open: whatsapp://send?phone=SUPPORT_NUMBER&text=...
+```
+
+### 7.2 Message Template
+
+```text
+Olá! Preciso de suporte.
+Session ID: {support_session_id}
+Email: {user_email}
+```
+
+---
+
+## Technical Implementation Details
+
+### Files to Create
+
+| Path | Description |
+|------|-------------|
+| `supabase/migrations/xxx_secure_schema.sql` | Complete schema migration |
+| `supabase/functions/process-payment/index.ts` | Payment webhook handler |
+| `supabase/functions/reconcile-payments/index.ts` | Reconciliation job |
+| `supabase/functions/create-support-session/index.ts` | Support session generator |
+| `src/hooks/useSecureAuth.ts` | New secure auth hook |
+| `src/components/auth/InviteCodeStep.tsx` | Invite code validation |
+| `src/components/auth/SignUpStep.tsx` | Registration with strong password |
+| `src/components/auth/MFASetupStep.tsx` | TOTP setup wrapper |
+| `src/components/auth/MFAVerifyStep.tsx` | TOTP verification |
+| `src/components/checkout/ElixirCodeInput.tsx` | Discount code input |
+| `src/components/support/WhatsAppButton.tsx` | Fixed support button |
+| `src/lib/api.ts` | RPC wrapper functions |
+
+### Files to Modify
+
+| Path | Changes |
+|------|---------|
+| `src/pages/Auth.tsx` | Multi-step auth flow |
+| `src/pages/Dashboard.tsx` | Use new auth hook, add support button |
+| `src/components/dashboard/AdminTab.tsx` | Replace direct access with RPCs |
+| `src/components/dashboard/ProductsTab.tsx` | Use RPC for products |
+| `src/components/dashboard/UserManagementTab.tsx` | Use RPC for users |
+| `src/components/dashboard/CreateUserDialog.tsx` | Use RPC for user creation |
+| `src/lib/security.ts` | Update TOTP issuer to KITARA |
+| `public/icons/*` | Copy uploaded KITARA logo |
+
+### Files to Delete/Deprecate
+
+| Path | Reason |
+|------|--------|
+| `src/hooks/useAuth.ts` | Replaced by useSecureAuth |
+| `src/hooks/useFakeAuth.ts` | No longer needed |
+
+---
+
+## Migration Order
+
+1. **Database Migration** - Create new tables, RPCs, RLS policies
+2. **Edge Functions** - Deploy process-payment, reconcile-payments, create-support-session
+3. **API Layer** - Create `src/lib/api.ts` with RPC wrappers
+4. **Auth Refactor** - Implement useSecureAuth and multi-step auth
+5. **Admin Refactor** - Replace all supabase.from() with RPC calls
+6. **Checkout Flow** - Implement Elixir code and order creation
+7. **Support Button** - Add WhatsApp support integration
+8. **Logo Update** - Copy uploaded KITARA logo to project icons
+
+---
+
+## Security Guarantees After Implementation
+
+| Guarantee | Enforcement |
+|-----------|-------------|
+| No direct table writes from frontend | RLS denies all INSERT/UPDATE/DELETE |
+| Payment status only via webhook | Only Edge Function can mark orders as paid |
+| Immutable audit trail | No UPDATE/DELETE on audit_logs |
+| MFA required | Auth hook blocks dashboard without MFA |
+| Invite-only registration | validate_invite() required before signup |
+| Rate limiting | RPC functions track attempts in security_events |
