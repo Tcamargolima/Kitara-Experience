@@ -47,7 +47,7 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto flex flex-col items-center">
             
-            {/* EXCLUSIVE BADGE */}
+            {/* EXCLUSIVE BADGE - O Selo de Membros */}
             <div className="mb-12 animate-fade-in-down">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/20 bg-secondary/5 backdrop-blur-md">
                 <Crown className="w-3 h-3 text-secondary" />
@@ -57,28 +57,21 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Video Container - High Impact Presentation */}
-            <div className="relative mb-16 group w-full max-w-3xl mx-auto">
-              {/* Background Glow behind video for depth */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[105%] h-[105%] bg-secondary/20 blur-[80px] opacity-50 pointer-events-none group-hover:opacity-70 transition-opacity duration-700" />
-
-              {/* Video Wrapper with Premium Finish */}
-              <div className="relative rounded-[2rem] overflow-hidden border border-white/10 bg-black/40 shadow-2xl shadow-black/50 transition-all duration-700 group-hover:scale-[1.01] group-hover:border-secondary/30">
-                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 via-transparent to-white/5 mix-blend-overlay pointer-events-none z-10"></div>
-                <video
-                  src="https://eickxhgarnwzovgdlujq.supabase.co/storage/v1/object/public/kitara_public/kitara-show1.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-auto object-cover rounded-[2rem] opacity-95 group-hover:opacity-100 transition-opacity duration-700"
+            {/* Image Container */}
+            <div className="relative mb-12 group cursor-pointer transition-transform duration-1000 hover:scale-105">
+              <div className="absolute inset-0 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all duration-700" />
+              <div className="relative">
+                <img 
+                  src="/kitara/assets/mentor.png" 
+                  alt="Kitara Mentor" 
+                  className="h-32 w-32 md:h-44 md:w-44 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10 relative opacity-90 group-hover:opacity-100 transition-opacity" 
                 />
-                <Sparkles className="h-8 w-8 text-secondary/80 absolute -top-3 -right-3 animate-pulse z-20 filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
+                <Sparkles className="h-6 w-6 text-secondary/60 absolute -top-2 -right-2 animate-pulse" />
               </div>
             </div>
 
             {/* Main Typography */}
-            <div className="mb-10 space-y-4 relative z-20">
+            <div className="mb-10 space-y-4">
               <h1 className="kitara-title font-cinzel text-6xl md:text-8xl lg:text-9xl font-medium tracking-tighter text-white drop-shadow-lg">
                 KITARA
               </h1>
@@ -91,7 +84,7 @@ const Index = () => {
             </div>
 
             {/* The "Experience" Copy */}
-            <div className="space-y-8 max-w-2xl mx-auto mb-12 relative z-20">
+            <div className="space-y-8 max-w-2xl mx-auto mb-12">
               <h2 className="text-2xl md:text-4xl text-white/90 font-light leading-tight font-cinzel">
                 Curating the <span className="italic text-secondary">Almost Incredible.</span>
               </h2>
@@ -102,7 +95,7 @@ const Index = () => {
             </div>
 
             {/* Action Button */}
-            <div className="relative z-20">
+            <div>
               <Button 
                 onClick={() => navigate("/auth")} 
                 size="lg" 
