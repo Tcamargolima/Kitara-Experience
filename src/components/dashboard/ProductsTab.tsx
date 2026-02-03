@@ -1,178 +1,251 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Check, X, ShoppingCart } from "lucide-react";
+import {
+  getActiveTickets,
+  applyElixir,
+  createOrder,
+  type Ticket,
+  type ElixirValidation,
+} from "@/lib/api";
 
 /**
- * ProductsTab allows administrators to view and manage a list of
- * products. Admins can create new products via a dialog form.
- * Clients can see the catalogue but do not have access to the
- * creation dialog (controlled upstream via role‑based tabs).
+ * ProductsTab - Now shows Tickets for purchase
+ * Uses RPC for elixir code validation and order creation
+ * NO direct supabase.from() calls
  */
 const ProductsTab = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [elixirCode, setElixirCode] = useState("");
+  const [elixirValidation, setElixirValidation] = useState<ElixirValidation | null>(null);
+  const [validatingElixir, setValidatingElixir] = useState(false);
+  const [creatingOrder, setCreatingOrder] = useState(false);
   const { toast } = useToast();
 
-  // Fetch products from Supabase
-  const fetchProducts = async () => {
+  const fetchTickets = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
+    try {
+      const data = await getActiveTickets();
+      setTickets(data);
+    } catch (error) {
       toast({
-        title: "Error loading products",
-        description: error.message,
+        title: "Erro",
+        description: "Não foi possível carregar os ingressos.",
         variant: "destructive",
       });
-    } else {
-      setProducts(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    fetchProducts();
-    // Subscribe to real‑time changes on products
-    const channel = supabase
-      .channel("products-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "products",
-        },
-        () => fetchProducts(),
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    fetchTickets();
   }, []);
 
-  const handleCreate = async () => {
-    if (!name.trim() || !price.trim()) {
-      toast({
-        title: "Validation error",
-        description: "Name and price are required",
-        variant: "destructive",
-      });
-      return;
-    }
-    const parsedPrice = parseFloat(price);
-    if (isNaN(parsedPrice)) {
-      toast({
-        title: "Validation error",
-        description: "Price must be a number",
-        variant: "destructive",
-      });
-      return;
-    }
-    const { error } = await supabase.from("products").insert({
-      name,
-      description,
-      price: parsedPrice,
-    });
-    if (error) {
-      toast({
-        title: "Error creating product",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Success", description: "Product created" });
-      setOpen(false);
-      setName("");
-      setDescription("");
-      setPrice("");
-      // Products will refresh via subscription
+  const handleApplyElixir = async () => {
+    if (!elixirCode.trim()) return;
+
+    setValidatingElixir(true);
+    try {
+      const result = await applyElixir(elixirCode);
+      setElixirValidation(result);
+
+      if (result.valid) {
+        toast({
+          title: "Código válido!",
+          description: `Desconto de ${result.discount_percent}% aplicado.`,
+        });
+      } else {
+        toast({
+          title: "Código inválido",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setValidatingElixir(false);
     }
   };
 
+  const handleBuyTicket = async (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setCreatingOrder(true);
+
+    try {
+      const result = await createOrder(
+        ticket.id,
+        1,
+        elixirValidation?.valid ? elixirCode : undefined
+      );
+
+      if (result.success) {
+        toast({
+          title: "Pedido criado!",
+          description: `Valor: R$ ${result.final_price?.toFixed(2)}. Aguardando pagamento.`,
+        });
+        // Reset state
+        setElixirCode("");
+        setElixirValidation(null);
+        fetchTickets(); // Refresh stock
+      } else {
+        toast({
+          title: "Erro",
+          description: result.message || "Não foi possível criar o pedido.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setCreatingOrder(false);
+      setSelectedTicket(null);
+    }
+  };
+
+  const calculatePrice = (ticket: Ticket) => {
+    let finalPrice = ticket.price;
+    if (elixirValidation?.valid) {
+      const discountPercent = elixirValidation.discount_percent || 0;
+      const discountFixed = elixirValidation.discount_fixed || 0;
+      finalPrice = Math.max(ticket.price - (ticket.price * discountPercent / 100) - discountFixed, 0);
+    }
+    return finalPrice;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-cinzel text-secondary">Products</h2>
-          <p className="text-muted-foreground">Manage your product catalogue</p>
-        </div>
-        {/* Only show create button for admins; wrapper can control visibility */}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="kitara-button">Add Product</Button>
-          </DialogTrigger>
-          <DialogContent className="kitara-card">
-            <DialogHeader>
-              <DialogTitle className="font-cinzel text-secondary">New Product</DialogTitle>
-              <DialogDescription>Enter product details below</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Name</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} className="kitara-input" />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Input value={description} onChange={(e) => setDescription(e.target.value)} className="kitara-input" />
-              </div>
-              <div>
-                <Label>Price (e.g., 19.99)</Label>
-                <Input value={price} onChange={(e) => setPrice(e.target.value)} className="kitara-input" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleCreate} className="kitara-button">Create</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      <div>
+        <h2 className="text-3xl font-cinzel text-secondary">Ingressos</h2>
+        <p className="text-muted-foreground">Escolha seu ingresso e aplique códigos de desconto</p>
       </div>
-      {loading ? (
+
+      {/* Elixir Code Input */}
+      <Card className="kitara-card">
+        <CardHeader>
+          <CardTitle className="text-lg font-cinzel text-secondary">Código Elixir (Desconto)</CardTitle>
+          <CardDescription>Tem um código de desconto? Aplique antes de comprar.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Input
+              value={elixirCode}
+              onChange={(e) => {
+                setElixirCode(e.target.value.toUpperCase());
+                setElixirValidation(null);
+              }}
+              placeholder="ELIXIR2024"
+              className="kitara-input font-mono"
+              disabled={validatingElixir}
+            />
+            <Button
+              onClick={handleApplyElixir}
+              disabled={validatingElixir || !elixirCode.trim()}
+              variant="outline"
+              className="border-secondary text-secondary"
+            >
+              {validatingElixir ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Aplicar"
+              )}
+            </Button>
+          </div>
+          {elixirValidation && (
+            <div className={`mt-2 flex items-center gap-2 text-sm ${elixirValidation.valid ? "text-primary" : "text-destructive"}`}>
+              {elixirValidation.valid ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <X className="h-4 w-4" />
+              )}
+              {elixirValidation.message}
+              {elixirValidation.valid && elixirValidation.discount_percent && (
+                <Badge variant="outline" className="ml-2">
+                  -{elixirValidation.discount_percent}%
+                </Badge>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Tickets Grid */}
+      {tickets.length === 0 ? (
         <Card className="kitara-card">
           <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">Loading products...</p>
-          </CardContent>
-        </Card>
-      ) : products.length === 0 ? (
-        <Card className="kitara-card">
-          <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">No products found</p>
+            <p className="text-center text-muted-foreground">Nenhum ingresso disponível no momento</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <Card key={product.id} className="kitara-card">
-              <CardHeader>
-                <CardTitle className="text-secondary">{product.name}</CardTitle>
-                {product.description && (
-                  <CardDescription className="text-muted-foreground">{product.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
-                <p className="text-lg font-bold text-primary">Price: ${product.price?.toFixed(2)}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {tickets.map((ticket) => {
+            const originalPrice = ticket.price;
+            const finalPrice = calculatePrice(ticket);
+            const hasDiscount = elixirValidation?.valid && finalPrice < originalPrice;
+
+            return (
+              <Card key={ticket.id} className="kitara-card">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-secondary">{ticket.name}</CardTitle>
+                    <Badge variant={ticket.stock > 0 ? "default" : "destructive"}>
+                      {ticket.stock > 0 ? `${ticket.stock} disponíveis` : "Esgotado"}
+                    </Badge>
+                  </div>
+                  {ticket.description && (
+                    <CardDescription>{ticket.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    {hasDiscount ? (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-primary">
+                          R$ {finalPrice.toFixed(2)}
+                        </span>
+                        <span className="text-sm line-through text-muted-foreground">
+                          R$ {originalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-2xl font-bold text-primary">
+                        R$ {originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={() => handleBuyTicket(ticket)}
+                    disabled={ticket.stock <= 0 || creatingOrder}
+                    className="kitara-button w-full"
+                  >
+                    {creatingOrder && selectedTicket?.id === ticket.id ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Comprar
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

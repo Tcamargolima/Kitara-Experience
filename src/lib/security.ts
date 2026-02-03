@@ -67,7 +67,7 @@ export class SecurityService {
    */
   static generateTOTPSecret(userEmail: string): { secret: string; qrCodeUri: string } {
     const totp = new TOTP({
-      issuer: 'MOSKINO Circo Digital',
+      issuer: 'KITARA',
       label: userEmail,
       algorithm: 'SHA1',
       digits: 6,
