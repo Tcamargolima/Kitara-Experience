@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, ArrowRight, Shield, Database, Lock } from "lucide-react";
+import { Sparkles, ArrowRight, Shield, Database, Lock, Crown, Star } from "lucide-react";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { IOSInstallInstructions } from "@/components/pwa/iOSInstallInstructions";
 
@@ -28,11 +28,11 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen kitara-bg relative overflow-x-hidden selection:bg-secondary/30 selection:text-secondary">
-      {/* Ambient Background Glows - Adiciona profundidade premium */}
+    <div className="min-h-screen kitara-bg relative overflow-x-hidden selection:bg-secondary/20 selection:text-secondary">
+      {/* Ambient Background - Deep Luxury Atmosphere */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[120px] opacity-40 animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] opacity-30" />
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[150px] opacity-30 animate-pulse" />
+        <div className="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
       </div>
 
       <div className="relative z-50">
@@ -42,119 +42,131 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center py-20">
-        <div className="kitara-noise opacity-50 mix-blend-overlay" />
+        <div className="kitara-noise opacity-30 mix-blend-soft-light" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto flex flex-col items-center">
             
-            {/* Image Container with Glow Effect */}
-            <div className="relative mb-16 group cursor-pointer transition-transform duration-700 hover:scale-105">
-              <div className="absolute inset-0 bg-secondary/20 rounded-full blur-3xl group-hover:bg-secondary/30 transition-all duration-700" />
+            {/* EXCLUSIVE BADGE - O Selo de Membros */}
+            <div className="mb-12 animate-fade-in-down">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/20 bg-secondary/5 backdrop-blur-md">
+                <Crown className="w-3 h-3 text-secondary" />
+                <span className="text-[10px] md:text-xs font-cinzel tracking-[0.3em] text-secondary/80 uppercase">
+                  Members Only • Select Access
+                </span>
+              </div>
+            </div>
+
+            {/* Image Container */}
+            <div className="relative mb-12 group cursor-pointer transition-transform duration-1000 hover:scale-105">
+              <div className="absolute inset-0 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-all duration-700" />
               <div className="relative">
                 <img 
                   src="/kitara/assets/mentor.png" 
                   alt="Kitara Mentor" 
-                  className="h-40 w-40 md:h-48 md:w-48 object-contain drop-shadow-2xl z-10 relative" 
+                  className="h-32 w-32 md:h-44 md:w-44 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10 relative opacity-90 group-hover:opacity-100 transition-opacity" 
                 />
-                <Sparkles className="h-10 w-10 text-secondary absolute -top-4 -right-4 animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                <Sparkles className="h-6 w-6 text-secondary/60 absolute -top-2 -right-2 animate-pulse" />
               </div>
             </div>
 
-            <div className="mb-10 space-y-6">
-              <h1 className="kitara-title font-cinzel text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white/90 to-white/50 drop-shadow-sm">
+            {/* Main Typography */}
+            <div className="mb-10 space-y-4">
+              <h1 className="kitara-title font-cinzel text-6xl md:text-8xl lg:text-9xl font-medium tracking-tighter text-white drop-shadow-lg">
                 KITARA
               </h1>
               
-              <div className="flex items-center justify-center gap-4 opacity-80">
-                <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-secondary"></div>
-                <p className="text-sm md:text-lg text-secondary tracking-[0.3em] uppercase font-cinzel font-light">
-                  Next Generation Platform
+              <div className="flex flex-col items-center gap-3">
+                 <p className="text-sm md:text-lg text-secondary/70 tracking-[0.5em] uppercase font-cinzel font-light border-b border-secondary/10 pb-2">
+                  The Sanctuary of Digital Assets
                 </p>
-                <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-secondary"></div>
               </div>
             </div>
 
-            <div className="space-y-6 max-w-3xl mx-auto backdrop-blur-sm bg-black/5 p-6 rounded-3xl border border-white/5">
-              <p className="text-2xl md:text-3xl text-foreground font-light leading-relaxed">
-                Secure. <span className="text-secondary font-normal">Fast.</span> Powerful.
-              </p>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
-                Experience the future of digital management with enterprise-grade security and elegant design defined by exclusivity.
+            {/* The "Experience" Copy */}
+            <div className="space-y-8 max-w-2xl mx-auto mb-12">
+              <h2 className="text-2xl md:text-4xl text-white/90 font-light leading-tight font-cinzel">
+                Curating the <span className="italic text-secondary">Almost Incredible.</span>
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed font-light font-sans tracking-wide">
+                Where elite performance meets uncompromising privacy. 
+                Designed exclusively for those who demand a digital experience beyond the ordinary.
               </p>
             </div>
 
-            <div className="mt-12">
+            {/* Action Button */}
+            <div>
               <Button 
                 onClick={() => navigate("/auth")} 
                 size="lg" 
-                className="kitara-button group relative overflow-hidden rounded-full px-10 py-8 text-lg font-cinzel tracking-wider border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)]"
+                className="kitara-button group relative overflow-hidden rounded-none px-12 py-8 text-sm md:text-base font-cinzel tracking-[0.2em] border border-white/10 bg-black/40 hover:bg-white/5 backdrop-blur-md transition-all duration-700 hover:border-secondary/40"
               >
-                <span className="relative z-10 flex items-center">
-                  Get Started
-                  <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-secondary/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                <span className="relative z-10 flex items-center uppercase text-white/90 group-hover:text-white">
+                  Enter The Portal
+                  <ArrowRight className="ml-3 h-4 w-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-500" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </Button>
+              <p className="mt-4 text-[10px] text-white/20 tracking-widest uppercase font-cinzel">
+                Invitation Required
+              </p>
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - "The Pillars of Exclusivity" */}
       <section className="py-32 relative">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-cinzel text-white/90">Key Features</h2>
-            <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-secondary to-transparent opacity-50"></div>
-            <p className="text-muted-foreground font-light tracking-wide">Built with uncompromised security and performance</p>
+          
+          <div className="text-center mb-24">
+            <span className="text-secondary/50 text-xs tracking-[0.4em] uppercase font-cinzel block mb-4">Why Kitara?</span>
+            <h2 className="text-3xl md:text-5xl font-cinzel text-white font-medium">The Art of Exclusivity</h2>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Feature 1 */}
-            <Card className="group relative overflow-hidden border-white/5 bg-black/20 backdrop-blur-xl hover:bg-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-secondary/30 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]">
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <CardHeader className="text-center pb-6 relative z-10">
-                <div className="h-16 w-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 flex items-center justify-center border border-white/5 group-hover:border-secondary/50 transition-colors duration-500">
-                  <Shield className="h-8 w-8 text-white/70 group-hover:text-secondary transition-colors duration-500" />
-                </div>
-                <CardTitle className="text-xl font-cinzel text-white/90 tracking-wide">Enterprise Security</CardTitle>
+            <Card className="group relative overflow-hidden border-white/5 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-sm transition-all duration-700 hover:-translate-y-1 hover:border-white/10">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <CardHeader className="text-center pt-10 pb-2 relative z-10">
+                <Shield className="h-8 w-8 mx-auto mb-6 text-white/40 group-hover:text-secondary transition-colors duration-500 stroke-[1px]" />
+                <CardTitle className="text-lg font-cinzel text-white/80 tracking-widest uppercase">Fortified Sanctuary</CardTitle>
               </CardHeader>
-              <CardContent className="relative z-10">
-                <CardDescription className="text-center text-muted-foreground/80 leading-relaxed group-hover:text-white/70 transition-colors duration-500">
-                  Row-level security, encrypted data, and secure authentication protocols.
+              <CardContent className="relative z-10 pb-10">
+                <CardDescription className="text-center text-muted-foreground/60 text-sm leading-relaxed font-light">
+                  Enterprise-grade encryption wrapped in a private environment. Your data, invisible to the world.
                 </CardDescription>
               </CardContent>
             </Card>
 
             {/* Feature 2 */}
-            <Card className="group relative overflow-hidden border-white/5 bg-black/20 backdrop-blur-xl hover:bg-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-secondary/30 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]">
-               <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <CardHeader className="text-center pb-6 relative z-10">
-                <div className="h-16 w-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 flex items-center justify-center border border-white/5 group-hover:border-secondary/50 transition-colors duration-500">
-                  <Database className="h-8 w-8 text-white/70 group-hover:text-secondary transition-colors duration-500" />
-                </div>
-                <CardTitle className="text-xl font-cinzel text-white/90 tracking-wide">Real-time Data</CardTitle>
+            <Card className="group relative overflow-hidden border-white/5 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-sm transition-all duration-700 hover:-translate-y-1 hover:border-white/10">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <CardHeader className="text-center pt-10 pb-2 relative z-10">
+                <Star className="h-8 w-8 mx-auto mb-6 text-white/40 group-hover:text-secondary transition-colors duration-500 stroke-[1px]" />
+                <CardTitle className="text-lg font-cinzel text-white/80 tracking-widest uppercase">Premium Velocity</CardTitle>
               </CardHeader>
-              <CardContent className="relative z-10">
-                <CardDescription className="text-center text-muted-foreground/80 leading-relaxed group-hover:text-white/70 transition-colors duration-500">
-                  Instant synchronization across all devices ensuring you never miss a beat.
+              <CardContent className="relative z-10 pb-10">
+                <CardDescription className="text-center text-muted-foreground/60 text-sm leading-relaxed font-light">
+                  Real-time synchronization engine designed for instant interactions. No latency, just fluidity.
                 </CardDescription>
               </CardContent>
             </Card>
 
             {/* Feature 3 */}
-            <Card className="group relative overflow-hidden border-white/5 bg-black/20 backdrop-blur-xl hover:bg-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-secondary/30 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]">
-               <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <CardHeader className="text-center pb-6 relative z-10">
-                <div className="h-16 w-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 flex items-center justify-center border border-white/5 group-hover:border-secondary/50 transition-colors duration-500">
-                  <Lock className="h-8 w-8 text-white/70 group-hover:text-secondary transition-colors duration-500" />
-                </div>
-                <CardTitle className="text-xl font-cinzel text-white/90 tracking-wide">Role-Based Access</CardTitle>
+            <Card className="group relative overflow-hidden border-white/5 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-sm transition-all duration-700 hover:-translate-y-1 hover:border-white/10">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <CardHeader className="text-center pt-10 pb-2 relative z-10">
+                <Lock className="h-8 w-8 mx-auto mb-6 text-white/40 group-hover:text-secondary transition-colors duration-500 stroke-[1px]" />
+                <CardTitle className="text-lg font-cinzel text-white/80 tracking-widest uppercase">Sovereign Control</CardTitle>
               </CardHeader>
-              <CardContent className="relative z-10">
-                <CardDescription className="text-center text-muted-foreground/80 leading-relaxed group-hover:text-white/70 transition-colors duration-500">
-                  Fine-grained permissions and elite role management for your organization.
+              <CardContent className="relative z-10 pb-10">
+                <CardDescription className="text-center text-muted-foreground/60 text-sm leading-relaxed font-light">
+                  Absolute authority over permissions. Role-based access crafted for hierarchy and order.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -163,15 +175,16 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <section className="py-16 relative border-t border-white/5 bg-black/20 backdrop-blur-lg">
+      <section className="py-20 relative border-t border-white/5 bg-black/40 backdrop-blur-xl">
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-xl mx-auto flex flex-col items-center">
-            <div className="flex justify-center items-center gap-4 mb-8 opacity-90 hover:opacity-100 transition-opacity duration-300">
-              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-12 w-12 opacity-80" />
-              <span className="text-2xl font-cinzel text-white tracking-widest">KITARA</span>
+            <div className="flex justify-center items-center gap-4 mb-8 opacity-70 hover:opacity-100 transition-opacity duration-500 cursor-default">
+              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-10 w-10 grayscale hover:grayscale-0 transition-all duration-500" />
+              <span className="text-xl font-cinzel text-white/80 tracking-[0.2em]">KITARA</span>
             </div>
-            <p className="text-muted-foreground text-sm font-light tracking-wide mb-2">Powered by cutting-edge technology</p>
-            <p className="text-white/20 text-xs mt-4 font-cinzel">© 2024 KITARA. ALL RIGHTS RESERVED.</p>
+            <p className="text-muted-foreground/40 text-xs font-cinzel tracking-wider mb-2">Defining the Standard of Digital Luxury</p>
+            <div className="w-12 h-[1px] bg-white/10 my-6"></div>
+            <p className="text-white/10 text-[10px] uppercase tracking-widest">© 2024 KITARA. Private & Confidential.</p>
           </div>
         </div>
       </section>
