@@ -1,8 +1,3 @@
-/**
- * useSecureAuth - Secure authentication hook
- * Uses RPCs instead of direct table access
- * Enforces MFA before dashboard access
- */
 
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";

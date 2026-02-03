@@ -172,5 +172,10 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Showcase … (segue igual, sem alterações)**/}
+      {/* Features Showcase … (segue igual, sem alterações) */}
       {/* … */}
+    </div>
+  );
+};
+
+export default Index;
