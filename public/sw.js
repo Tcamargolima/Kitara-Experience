@@ -1,5 +1,15 @@
-const CACHE_NAME = 'kitara-v1';
-const RUNTIME_CACHE = 'kitara-runtime';
+// Bump these when changing caching logic to force clients to drop old caches.
+const CACHE_NAME = 'kitara-v2';
+const RUNTIME_CACHE = 'kitara-runtime-v2';
+
+// Vite dev/preview endpoints MUST NEVER be cached by a SW.
+// Caching them can lead to stale prebundles and duplicate React instances.
+const DEV_BYPASS_PATH_PREFIXES = [
+  '/@vite/',
+  '/@id/',
+  '/@fs/',
+  '/@react-refresh',
+];
 
 // Assets to cache on install
 const PRECACHE_URLS = [
@@ -41,6 +51,19 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests
   if (url.origin !== location.origin) {
+    return;
+  }
+
+  // 🚫 Never intercept Vite dev/preview assets or prebundles.
+  // These URLs are only relevant during development/preview and caching them
+  // is a proven way to trigger "Invalid hook call" / hooks dispatcher null.
+  if (
+    DEV_BYPASS_PATH_PREFIXES.some((p) => url.pathname.startsWith(p)) ||
+    url.pathname.includes('/node_modules/.vite/') ||
+    url.pathname.includes('/node_modules/.vite/deps/') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/node_modules/')
+  ) {
     return;
   }
 
