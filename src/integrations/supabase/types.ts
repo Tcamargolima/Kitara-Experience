@@ -565,35 +565,109 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_create_user: {
+        Args: { p_email: string; p_role: string }
+        Returns: undefined
+      }
       admin_get_stats: { Args: never; Returns: Json }
       admin_get_tickets: { Args: never; Returns: Json }
       admin_get_users: { Args: never; Returns: Json }
       apply_elixir: { Args: { p_code: string }; Returns: Json }
-      consume_invite: {
-        Args: { p_code: string; p_user_id: string }
-        Returns: Json
-      }
-      create_order: {
-        Args: {
-          p_elixir_code?: string
-          p_quantity?: number
-          p_ticket_id: string
+      consume_invite:
+        | { Args: { p_code: string }; Returns: boolean }
+        | { Args: { p_code: string; p_user: string }; Returns: boolean }
+      create_order:
+        | { Args: { p_elixir: string; p_ticket: string }; Returns: string }
+        | {
+            Args: {
+              p_elixir_code?: string
+              p_quantity?: number
+              p_ticket_id: string
+            }
+            Returns: Json
+          }
+      finalize_order_from_webhook:
+        | {
+            Args: {
+              p_amount: number
+              p_gateway_event: string
+              p_order: string
+              p_payload: Json
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_gateway: string
+              p_gateway_event_id: string
+              p_gateway_payload: Json
+              p_order_id: string
+            }
+            Returns: Json
+          }
+      get_active_tickets: {
+        Args: never
+        Returns: {
+          created_at: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          stock: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tickets"
+          isOneToOne: false
+          isSetofReturn: true
         }
-        Returns: Json
-      }
-      finalize_order_from_webhook: {
-        Args: {
-          p_amount: number
-          p_gateway: string
-          p_gateway_event_id: string
-          p_gateway_payload: Json
-          p_order_id: string
-        }
-        Returns: Json
       }
       get_mfa_secret: { Args: never; Returns: string }
+      get_my_accesses: {
+        Args: never
+        Returns: {
+          created_at: string | null
+          discount_applied: number | null
+          elixir_code_used: string | null
+          final_price: number
+          id: string
+          original_price: number
+          paid_at: string | null
+          quantity: number | null
+          status: string | null
+          ticket_id: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_profile: { Args: never; Returns: Json }
-      get_my_tickets: { Args: never; Returns: Json }
+      get_my_tickets: {
+        Args: never
+        Returns: {
+          created_at: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          stock: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tickets"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -602,8 +676,8 @@ export type Database = {
         Returns: boolean
       }
       log_security_event: {
-        Args: { p_event_type: string; p_metadata?: Json; p_success: boolean }
-        Returns: string
+        Args: { p_metadata: Json; p_success: boolean; p_type: string }
+        Returns: undefined
       }
       setup_mfa: { Args: { p_secret_encrypted: string }; Returns: Json }
       validate_invite: { Args: { p_code: string }; Returns: Json }

@@ -128,9 +128,9 @@ export async function logSecurityEvent(
   metadata?: Record<string, unknown>
 ): Promise<void> {
   await supabase.rpc("log_security_event", {
-    p_event_type: eventType,
+    p_type: eventType,
     p_success: success,
-    p_metadata: metadata as unknown as null,
+    p_metadata: (metadata ?? {}) as unknown as Record<string, never>,
   });
 }
 
@@ -151,10 +151,9 @@ export async function validateInvite(code: string): Promise<InviteValidation> {
   return data as unknown as InviteValidation;
 }
 
-export async function consumeInvite(code: string, userId: string): Promise<boolean> {
+export async function consumeInvite(code: string): Promise<boolean> {
   const { data, error } = await supabase.rpc("consume_invite", {
     p_code: code,
-    p_user_id: userId,
   });
   
   if (error) {
@@ -162,7 +161,7 @@ export async function consumeInvite(code: string, userId: string): Promise<boole
     return false;
   }
   
-  return (data as { success: boolean })?.success ?? false;
+  return data === true;
 }
 
 // ==========================================
@@ -217,11 +216,11 @@ export async function getMyTickets(): Promise<Order[]> {
 }
 
 // ==========================================
-// Tickets (Public Read)
+// Tickets (Public Read via RPC)
 // ==========================================
 
 export async function getActiveTickets(): Promise<Ticket[]> {
-  // Use RPC to fetch active tickets to avoid direct table access from frontend
+  // Use RPC to fetch active tickets - returns SETOF tickets
   const { data, error } = await supabase.rpc("get_active_tickets");
 
   if (error) {
@@ -229,37 +228,24 @@ export async function getActiveTickets(): Promise<Ticket[]> {
     return [];
   }
 
-  return (data as Ticket[]) ?? [];
+  // RPC returns array of ticket rows directly
+  return (data as unknown as Ticket[]) ?? [];
 }
 
-export async function adminCreateUser(
-  userId: string,
-  email: string,
-  role: string
-): Promise<{ success: boolean; message?: string }> {
-  const { data, error } = await supabase.rpc("admin_create_user", {
-    p_user_id: userId,
-    p_email: email,
-    p_role: role,
-  });
+// ==========================================
+// User Accesses (via RPC)
+// ==========================================
 
-  if (error) {
-    console.error("[API] admin_create_user error:", error);
-    return { success: false, message: error.message };
-  }
-
-  return (data as { success: boolean; message?: string }) ?? { success: false };
-}
-
-export async function getMyAccesses(userId: string): Promise<any[]> {
-  const { data, error } = await supabase.rpc("get_my_accesses", { p_user_id: userId });
+export async function getMyAccesses(): Promise<Order[]> {
+  // get_my_accesses uses auth.uid() internally - no params needed
+  const { data, error } = await supabase.rpc("get_my_accesses");
 
   if (error) {
     console.error("[API] get_my_accesses error:", error);
     return [];
   }
 
-  return (data as any[]) ?? [];
+  return (data as unknown as Order[]) ?? [];
 }
 
 // ==========================================

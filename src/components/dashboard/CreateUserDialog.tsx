@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { adminCreateUser } from "@/lib/api";
+import { adminCreateInvite } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,103 +20,129 @@ interface CreateUserDialogProps {
 }
 
 /**
- * CreateUserDialog allows administrators to create new user accounts
- * directly from the dashboard. It uses Supabase auth to sign up the
- * user and then inserts corresponding records into the profiles and
- * user_roles tables. Only admins should have access to this dialog.
+ * CreateUserDialog - Now creates INVITE codes instead of direct users
+ * Following KITARA security model: users must register with invite code
+ * Admin creates invites, users self-register with MFA
  */
 const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "client">("client");
+  const [maxUses, setMaxUses] = useState(1);
+  const [expiresInDays, setExpiresInDays] = useState(7);
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const resetForm = () => {
-    setEmail("");
-    setPassword("");
-    setRole("client");
+    setMaxUses(1);
+    setExpiresInDays(7);
+    setGeneratedCode(null);
   };
 
-  const handleCreate = async () => {
-    if (!email.trim() || !password.trim()) {
-      toast({
-        title: "Validation error",
-        description: "Email and password are required",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleCreateInvite = async () => {
+    setLoading(true);
     try {
-      // Create user via Supabase Auth signUp
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
-      const userId = data?.user?.id;
-      if (userId) {
-        await adminCreateUser(userId, email, role);
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiresInDays);
+      
+      const result = await adminCreateInvite(maxUses, expiresAt.toISOString());
+      
+      if (result.success && result.code) {
+        setGeneratedCode(result.code);
+        toast({ 
+          title: "Convite criado!", 
+          description: `Código: ${result.code}` 
+        });
+        if (onUserCreated) onUserCreated();
+      } else {
+        throw new Error(result.message || "Falha ao criar convite");
       }
-      toast({ title: "Success", description: "User created successfully" });
-      setOpen(false);
-      resetForm();
-      if (onUserCreated) onUserCreated();
     } catch (err: any) {
-      const message = err?.message || "Failed to create user";
+      const message = err?.message || "Falha ao criar convite";
       toast({
-        title: "Error",
+        title: "Erro",
         description: message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    resetForm();
+  };
+
+  const copyToClipboard = () => {
+    if (generatedCode) {
+      navigator.clipboard.writeText(generatedCode);
+      toast({ title: "Copiado!", description: "Código copiado para área de transferência" });
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="kitara-button">New User</Button>
+        <Button className="kitara-button">Novo Convite</Button>
       </DialogTrigger>
       <DialogContent className="kitara-card">
         <DialogHeader>
-          <DialogTitle className="font-cinzel text-secondary">Create New User</DialogTitle>
-          <DialogDescription>Provide the credentials for the new account below</DialogDescription>
+          <DialogTitle className="font-cinzel text-secondary">Criar Código de Convite</DialogTitle>
+          <DialogDescription>
+            Gere um código de convite para novos usuários se registrarem
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Email</Label>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="kitara-input"
-            />
+        
+        {generatedCode ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-primary/10 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-2">Código gerado:</p>
+              <p className="text-2xl font-mono font-bold text-primary tracking-wider">
+                {generatedCode}
+              </p>
+            </div>
+            <Button onClick={copyToClipboard} className="w-full kitara-button">
+              Copiar Código
+            </Button>
+            <Button variant="outline" onClick={handleClose} className="w-full">
+              Fechar
+            </Button>
           </div>
-          <div>
-            <Label>Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="kitara-input"
-            />
-          </div>
-          <div>
-            <Label>Role</Label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as "admin" | "client")}
-              className="kitara-input"
-              style={{
-                backgroundColor: 'var(--input)',
-                color: 'var(--foreground)',
-                padding: '0.5rem 0.75rem',
-              }}
-            >
-              <option value="client">Client</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleCreate} className="kitara-button">Create User</Button>
-        </DialogFooter>
+        ) : (
+          <>
+            <div className="space-y-4">
+              <div>
+                <Label>Número máximo de usos</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={maxUses}
+                  onChange={(e) => setMaxUses(Number(e.target.value))}
+                  className="kitara-input"
+                />
+              </div>
+              <div>
+                <Label>Expira em (dias)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(Number(e.target.value))}
+                  className="kitara-input"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                onClick={handleCreateInvite} 
+                className="kitara-button"
+                disabled={loading}
+              >
+                {loading ? "Gerando..." : "Gerar Convite"}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

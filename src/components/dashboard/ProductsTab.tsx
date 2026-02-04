@@ -8,6 +8,7 @@ import { Loader2, Check, X, ShoppingCart } from "lucide-react";
 import {
   getActiveTickets,
   createOrder,
+  applyElixir,
   type Ticket,
   type ElixirValidation,
 } from "@/lib/api";
