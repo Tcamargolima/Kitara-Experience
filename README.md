@@ -1,6 +1,5 @@
-# 🎪 MOSKINO - Circo Digital
-
-Sistema completo de gestão de ingressos e assinaturas para espetáculos circenses, com autenticação robusta, PWA e design temático exclusivo.
+KITARA
+Exclusive Platform
 
 ![Status](https://img.shields.io/badge/status-production%20ready-success) ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
