@@ -590,6 +590,15 @@ export type Database = {
         | {
             Args: {
               p_amount: number
+              p_event_id: string
+              p_order: string
+              p_stripe_payment: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_amount: number
               p_gateway_event: string
               p_order: string
               p_payload: Json
