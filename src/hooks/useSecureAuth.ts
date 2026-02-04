@@ -40,9 +40,12 @@ export const useSecureAuth = () => {
   }, []);
 
   // Determine auth step based on state
+  // IMPORTANT: This is only called during initialization (page load/refresh)
+  // NOT during active login flow - login flow manages its own state transitions
   const determineAuthStep = useCallback((
     session: Session | null,
-    profile: UserProfile | null
+    profile: UserProfile | null,
+    isInitialLoad: boolean = false
   ): AuthStep => {
     if (!session) {
       return "invite"; // Start with invite code
@@ -56,72 +59,120 @@ export const useSecureAuth = () => {
       return "mfa_setup"; // Must setup MFA
     }
     
-    // If MFA is enabled, they need to verify (handled by session state)
-    // For now, if they have a session and MFA enabled, they're authenticated
-    return "authenticated";
+    // If MFA is enabled and this is a fresh login (not page reload),
+    // they need to verify MFA first
+    // On page reload with existing session, assume MFA was already verified
+    if (isInitialLoad) {
+      // User refreshed page with valid session + MFA enabled = already authenticated
+      return "authenticated";
+    }
+    
+    // Fresh login with MFA enabled = needs verification
+    return "mfa_verify";
   }, []);
 
   // Initialize auth state
   useEffect(() => {
     console.log("[SecureAuth] Initializing...");
+    let isMounted = true;
+    
+    // Track if this is initial load vs active login
+    let isInitialLoad = true;
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log("[SecureAuth] Auth state changed:", event);
+        
+        // SIGNED_IN during active session means user just logged in
+        // We DON'T want to override the authStep set by signIn()
+        if (event === "SIGNED_IN" && !isInitialLoad) {
+          // signIn() already set the correct authStep, don't override
+          // Just update session/user if needed
+          if (session?.user && isMounted) {
+            setTimeout(async () => {
+              const profile = await fetchProfile(session.user.id);
+              if (isMounted) {
+                setState(prev => ({
+                  ...prev,
+                  user: session.user,
+                  session,
+                  profile,
+                  loading: false,
+                  // Keep the authStep that was set by signIn()
+                }));
+              }
+              // Log security event
+              await logSecurityEvent("login", true, { method: "password" });
+            }, 0);
+          }
+          return;
+        }
         
         if (session?.user) {
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(async () => {
+            if (!isMounted) return;
             const profile = await fetchProfile(session.user.id);
-            const step = determineAuthStep(session, profile);
+            const step = determineAuthStep(session, profile, isInitialLoad);
             
-            setState({
-              user: session.user,
-              session,
-              profile,
-              loading: false,
-              authStep: step,
-              inviteCode: null,
-            });
-            
-            // Log security event
-            if (event === "SIGNED_IN") {
-              await logSecurityEvent("login", true, { method: "password" });
+            if (isMounted) {
+              setState({
+                user: session.user,
+                session,
+                profile,
+                loading: false,
+                authStep: step,
+                inviteCode: null,
+              });
             }
           }, 0);
         } else {
-          setState({
-            user: null,
-            session: null,
-            profile: null,
-            loading: false,
-            authStep: "invite",
-            inviteCode: null,
-          });
+          if (isMounted) {
+            setState({
+              user: null,
+              session: null,
+              profile: null,
+              loading: false,
+              authStep: "invite",
+              inviteCode: null,
+            });
+          }
         }
       }
     );
 
     // Check initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!isMounted) return;
+      
       if (session?.user) {
         const profile = await fetchProfile(session.user.id);
-        const step = determineAuthStep(session, profile);
+        const step = determineAuthStep(session, profile, true); // Always initial load here
         
-        setState({
-          user: session.user,
-          session,
-          profile,
-          loading: false,
-          authStep: step,
-          inviteCode: null,
-        });
+        if (isMounted) {
+          setState({
+            user: session.user,
+            session,
+            profile,
+            loading: false,
+            authStep: step,
+            inviteCode: null,
+          });
+        }
       } else {
-        setState((prev) => ({ ...prev, loading: false }));
+        if (isMounted) {
+          setState((prev) => ({ ...prev, loading: false }));
+        }
       }
+      
+      // After initial load, set flag to false
+      isInitialLoad = false;
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [fetchProfile, determineAuthStep]);
 
   // Set invite code after validation
