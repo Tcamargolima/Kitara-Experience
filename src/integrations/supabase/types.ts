@@ -331,6 +331,7 @@ export type Database = {
           ip_address: string | null
           metadata: Json | null
           success: boolean | null
+          type: string | null
           user_agent: string | null
           user_id: string | null
         }
@@ -341,6 +342,7 @@ export type Database = {
           ip_address?: string | null
           metadata?: Json | null
           success?: boolean | null
+          type?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -351,6 +353,7 @@ export type Database = {
           ip_address?: string | null
           metadata?: Json | null
           success?: boolean | null
+          type?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -684,10 +687,15 @@ export type Database = {
         }
         Returns: boolean
       }
-      log_security_event: {
-        Args: { p_metadata: Json; p_success: boolean; p_type: string }
-        Returns: undefined
-      }
+      log_security_event:
+        | {
+            Args: { p_event_type: string; p_metadata: Json; p_success: boolean }
+            Returns: undefined
+          }
+        | {
+            Args: { p_metadata: Json; p_success: boolean; p_type: string }
+            Returns: undefined
+          }
       setup_mfa: { Args: { p_secret_encrypted: string }; Returns: Json }
       validate_invite: { Args: { p_code: string }; Returns: Json }
     }
