@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
-import "./kitara/theme/kitara.css";
 import "./index.css";
 
 // Register Service Worker ONLY in production.
