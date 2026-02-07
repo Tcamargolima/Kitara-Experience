@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Ticket } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  getActiveTickets,
-  createOrder,
-  type Ticket as TicketType,
-  type ElixirValidation,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { Ticket, Sparkles } from "lucide-react";
+import {
+  getActiveTickets, createOrder,
+  type Ticket as TicketType, type ElixirValidation,
 } from "@/lib/api";
 import ElixirCodeInput from "@/components/checkout/ElixirCodeInput";
 import TicketCard from "@/components/dashboard/TicketCard";
+import SkeletonCard from "@/components/common/SkeletonCard";
 
-/**
- * ProductsTab - Ticket purchasing with Elixir discount codes
- * Uses RPC only — no direct supabase.from()
- */
 const ProductsTab = () => {
   const [tickets, setTickets] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const [elixirValidation, setElixirValidation] = useState<ElixirValidation | null>(null);
   const [elixirCode, setElixirCode] = useState("");
+  const [confirmTicket, setConfirmTicket] = useState<TicketType | null>(null);
   const { toast } = useToast();
 
   const fetchTickets = async () => {
@@ -36,10 +37,22 @@ const ProductsTab = () => {
 
   useEffect(() => { fetchTickets(); }, []);
 
-  const handleBuyTicket = async (ticket: TicketType) => {
-    setPurchasingId(ticket.id);
+  const calcFinalPrice = (ticket: TicketType) => {
+    let price = ticket.price;
+    if (elixirValidation?.valid) {
+      const pct = elixirValidation.discount_percent || 0;
+      const fix = elixirValidation.discount_fixed || 0;
+      price = Math.max(price - (price * pct) / 100 - fix, 0);
+    }
+    return price;
+  };
+
+  const handleConfirmBuy = async () => {
+    if (!confirmTicket) return;
+    setPurchasingId(confirmTicket.id);
+    setConfirmTicket(null);
     try {
-      const result = await createOrder(ticket.id, 1, elixirValidation?.valid ? elixirCode : undefined);
+      const result = await createOrder(confirmTicket.id, 1, elixirValidation?.valid ? elixirCode : undefined);
       if (result.success) {
         toast({ title: "Pedido criado!", description: `Valor: R$ ${result.final_price?.toFixed(2)}. Aguardando pagamento.` });
         setElixirCode("");
@@ -53,16 +66,8 @@ const ProductsTab = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <h2 className="text-3xl font-cinzel text-secondary">Ingressos</h2>
         <p className="text-muted-foreground">Escolha seu ingresso e aplique códigos de desconto</p>
@@ -94,11 +99,19 @@ const ProductsTab = () => {
       </Card>
 
       {/* Tickets Grid */}
-      {tickets.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+        </div>
+      ) : tickets.length === 0 ? (
         <Card className="kitara-card">
-          <CardContent className="py-16 text-center">
-            <Ticket className="h-12 w-12 mx-auto mb-4 text-muted-foreground/40" />
-            <p className="text-muted-foreground">Nenhum ingresso disponível no momento</p>
+          <CardContent className="py-16 text-center space-y-4">
+            <div className="relative inline-block">
+              <Ticket className="h-16 w-16 mx-auto text-muted-foreground/30" />
+              <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
+            </div>
+            <p className="text-muted-foreground text-lg">Nenhum ingresso disponível no momento</p>
+            <p className="text-sm text-muted-foreground/60">Novos eventos serão anunciados em breve</p>
           </CardContent>
         </Card>
       ) : (
@@ -109,11 +122,47 @@ const ProductsTab = () => {
               ticket={ticket}
               elixirValidation={elixirValidation}
               purchasing={purchasingId === ticket.id}
-              onBuy={handleBuyTicket}
+              onBuy={(t) => setConfirmTicket(t)}
             />
           ))}
         </div>
       )}
+
+      {/* Purchase Confirmation Dialog */}
+      <Dialog open={!!confirmTicket} onOpenChange={(open) => !open && setConfirmTicket(null)}>
+        <DialogContent className="kitara-card">
+          <DialogHeader>
+            <DialogTitle className="font-cinzel text-secondary">Confirmar Compra</DialogTitle>
+            <DialogDescription>Revise os detalhes antes de prosseguir</DialogDescription>
+          </DialogHeader>
+          {confirmTicket && (
+            <div className="space-y-4 py-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ingresso</span>
+                <span className="font-medium">{confirmTicket.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Preço original</span>
+                <span>R$ {confirmTicket.price.toFixed(2)}</span>
+              </div>
+              {elixirValidation?.valid && (
+                <div className="flex justify-between text-primary">
+                  <span>Desconto Elixir</span>
+                  <span>-{elixirValidation.discount_percent}%</span>
+                </div>
+              )}
+              <div className="border-t border-border pt-2 flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span className="text-primary">R$ {calcFinalPrice(confirmTicket).toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmTicket(null)}>Cancelar</Button>
+            <Button className="kitara-button" onClick={handleConfirmBuy}>Confirmar Compra</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

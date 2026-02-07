@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { Sparkles } from "lucide-react";
-
-// Auth step components
+import AuthStepper from "@/components/auth/AuthStepper";
 import { InviteCodeStep } from "@/components/auth/InviteCodeStep";
 import { SignUpStep } from "@/components/auth/SignUpStep";
 import { LoginStep } from "@/components/auth/LoginStep";
@@ -12,35 +11,26 @@ import { MFAVerifyStep } from "@/components/auth/MFAVerifyStep";
 
 const Auth = () => {
   const {
-    user,
-    profile,
-    loading,
-    authStep,
-    inviteCode,
-    isAuthenticated,
-    signIn,
-    signUp,
-    signOut,
-    setValidatedInvite,
-    goToLogin,
-    completeMfaSetup,
-    completeMfaVerify,
+    user, loading, authStep, inviteCode, isAuthenticated,
+    signIn, signUp, signOut, setValidatedInvite, goToLogin,
+    completeMfaSetup, completeMfaVerify,
   } = useSecureAuth();
 
   const navigate = useNavigate();
+  const [animKey, setAnimKey] = useState(0);
 
-  // Redirect to dashboard when fully authenticated
+  // Re-trigger animation on step change
+  useEffect(() => { setAnimKey((k) => k + 1); }, [authStep]);
+
   useEffect(() => {
-    if (isAuthenticated && !loading) {
-      navigate("/dashboard");
-    }
+    if (isAuthenticated && !loading) navigate("/dashboard");
   }, [isAuthenticated, loading, navigate]);
 
   if (loading) {
     return (
       <div className="min-h-screen kitara-bg flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-primary mx-auto mb-4" />
           <p className="text-primary">Carregando...</p>
         </div>
       </div>
@@ -50,46 +40,15 @@ const Auth = () => {
   const renderAuthStep = () => {
     switch (authStep) {
       case "invite":
-        return (
-          <InviteCodeStep
-            onValidInvite={setValidatedInvite}
-            onLoginClick={goToLogin}
-          />
-        );
-      
+        return <InviteCodeStep onValidInvite={setValidatedInvite} onLoginClick={goToLogin} />;
       case "signup":
-        return (
-          <SignUpStep
-            inviteCode={inviteCode || ""}
-            onSignUp={signUp}
-            onBackToInvite={() => window.location.reload()}
-          />
-        );
-      
+        return <SignUpStep inviteCode={inviteCode || ""} onSignUp={signUp} onBackToInvite={() => window.location.reload()} />;
       case "login":
-        return (
-          <LoginStep
-            onSignIn={signIn}
-            onBackToInvite={() => window.location.reload()}
-          />
-        );
-      
+        return <LoginStep onSignIn={signIn} onBackToInvite={() => window.location.reload()} />;
       case "mfa_setup":
-        return (
-          <MFASetupStep
-            userEmail={user?.email || ""}
-            onComplete={completeMfaSetup}
-          />
-        );
-      
+        return <MFASetupStep userEmail={user?.email || ""} onComplete={completeMfaSetup} />;
       case "mfa_verify":
-        return (
-          <MFAVerifyStep
-            onComplete={completeMfaVerify}
-            onSignOut={signOut}
-          />
-        );
-      
+        return <MFAVerifyStep onComplete={completeMfaVerify} onSignOut={signOut} />;
       default:
         return null;
     }
@@ -99,22 +58,23 @@ const Auth = () => {
     <div className="min-h-screen kitara-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <img
-                src="/kitara/assets/logo.png"
-                alt="KITARA logo"
-                className="h-20 w-20 drop-shadow-lg"
-              />
+              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-20 w-20 drop-shadow-lg" />
               <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
             </div>
           </div>
           <h1 className="kitara-title text-4xl font-cinzel">KITARA</h1>
         </div>
 
-        {/* Current auth step */}
-        {renderAuthStep()}
+        {/* Stepper */}
+        <AuthStepper currentStep={authStep} />
+
+        {/* Current auth step with animation */}
+        <div key={animKey} className="animate-fade-in">
+          {renderAuthStep()}
+        </div>
       </div>
     </div>
   );
