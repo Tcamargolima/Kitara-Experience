@@ -1,216 +1,78 @@
 
 
-# KITARA Production Fintech Mode - Complete Fix Plan
+# Refatoracao Completa: UI / Componentes / UX / Dashboard / Tickets / Flows
 
-## Problem Summary
+## Resumo
 
-The build currently fails due to:
-1. **Missing import**: `ProductsTab.tsx` calls `applyElixir` without importing it
-2. **Missing RPC type definitions**: `get_active_tickets`, `admin_create_user`, `get_my_accesses` are not defined in `types.ts`
-3. **next-themes dependency**: Still present and needs complete removal
-4. **vercel.json**: Missing manifest.json header configuration
+Refatoracao profunda focada em melhorar a experiencia do usuario, modularizar componentes grandes, polir a identidade visual KITARA e otimizar os fluxos de autenticacao e compra.
 
 ---
 
-## Phase 1: Fix TypeScript Build Errors
+## 1. Quebrar o AdminTab (454 linhas) em subcomponentes
 
-### 1.1 Fix ProductsTab.tsx - Missing Import
+O `AdminTab.tsx` concentra stats, 3 dialogs de criacao e 2 sub-tabs -- tudo em um unico arquivo de 454 linhas.
 
-Add the missing `applyElixir` import from `@/lib/api`:
+- **Extrair `AdminStatsGrid`** -- grid de 4 cards de metricas (usuarios, pedidos, receita, ingressos)
+- **Extrair `CreateTicketDialog`** -- dialog de criacao de ingresso com formulario
+- **Extrair `CreateCouponDialog`** -- dialog de criacao de cupom Elixir
+- **Extrair `CreateInviteDialog`** -- dialog de geracao de convite com exibicao do codigo gerado
+- **AdminTab reduzido** -- orquestra os subcomponentes, chama `fetchData` e passa dados
 
-```typescript
-import {
-  getActiveTickets,
-  createOrder,
-  applyElixir,  // ADD THIS
-  type Ticket,
-  type ElixirValidation,
-} from "@/lib/api";
-```
+## 2. Melhorar a SecurityTab (327 linhas)
 
-### 1.2 Fix api.ts - Remove Unused Functions
+- **Remover dados mock** -- substituir por chamadas RPC reais (ou placeholders claros com mensagem "dados reais em breve")
+- **Condicionar abas admin-only** -- as abas "Gerenciar Usuarios" e "Logs de Seguranca" so devem aparecer para admins; clientes veem apenas "Minhas Configuracoes"
+- **Extrair `SecurityStatsGrid`** -- os 3 cards de metricas no topo
 
-The following functions call RPCs that don't exist in the database schema:
-- `getActiveTickets()` - Uses `get_active_tickets` RPC (doesn't exist)
-- `adminCreateUser()` - Uses `admin_create_user` RPC (doesn't exist)
-- `getMyAccesses()` - Uses `get_my_accesses` RPC (doesn't exist)
+## 3. Melhorar a Landing Page (Index.tsx)
 
-**Solution**: Replace these with functions that use existing RPCs or direct RLS-protected queries.
+- **Adicionar secao de features** -- o comentario na linha 175 indica `{/* Features Showcase ... (segue igual, sem alteracoes) */}` mas o conteudo foi cortado; garantir que exista uma secao de features completa com 3-4 cards (Seguranca, Exclusividade, Experiencia Premium, Suporte)
+- **Melhorar responsividade** -- ajustar tamanhos de tipografia para telas menores
+- **Adicionar footer minimalista** -- com copyright e link para suporte
 
-For `getActiveTickets()`: The tickets table has RLS policy "Anyone can read active tickets" that allows SELECT where `is_active = true`. Use `supabase.from('tickets')` with proper typing since this is a read-only operation on a public-readable table.
+## 4. Polir o fluxo de Auth
 
-For `adminCreateUser()` and `getMyAccesses()`: Remove these functions as they're not used or add corresponding RPCs to the migration.
+- **Adicionar transicoes suaves** -- ao trocar entre steps (invite -> signup -> mfa_setup -> mfa_verify), usar animacao de fade/slide
+- **Melhorar feedback visual** -- indicador de progresso (stepper) mostrando em qual etapa o usuario esta (1. Convite, 2. Cadastro, 3. MFA, 4. Verificacao)
+- **Botao de voltar consistente** -- em todas as etapas exceto a primeira
 
-### 1.3 Update Supabase Types
+## 5. Melhorar ProductsTab e TicketCard
 
-Add missing RPC definitions to `types.ts`:
-- `get_active_tickets` (or use table query since RLS allows it)
+- **Estado vazio mais atraente** -- ilustracao ou animacao ao inves de apenas icone + texto
+- **Skeleton loading** -- mostrar cards skeleton enquanto carrega, ao inves de spinner generico
+- **Feedback de compra melhorado** -- dialog de confirmacao antes de comprar, com resumo do pedido
 
----
+## 6. Melhorias globais de UX
 
-## Phase 2: Remove next-themes Dependency
-
-### 2.1 Files to Modify
-
-| File | Changes |
-|------|---------|
-| `package.json` | Remove `next-themes` from dependencies |
-| `src/App.tsx` | Remove `ThemeProvider` import and wrapper |
-| `src/components/ui/sonner.tsx` | Replace `useTheme` with localStorage-based theme |
-
-### 2.2 Create Theme Hook (Replacement)
-
-Create a simple theme hook that uses localStorage:
-
-```typescript
-// src/hooks/useLocalTheme.ts
-export const useLocalTheme = () => {
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const stored = localStorage.getItem('theme');
-    return (stored as 'dark' | 'light') || 'dark';
-  });
-  
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-  
-  return { theme, setTheme };
-};
-```
-
-### 2.3 Update App.tsx
-
-Remove ThemeProvider wrapper:
-
-```typescript
-// Before
-import { ThemeProvider } from "next-themes";
-// ...
-<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-  ...
-</ThemeProvider>
-
-// After
-// Remove ThemeProvider entirely, add useEffect for theme
-useEffect(() => {
-  document.documentElement.classList.add('dark');
-}, []);
-```
-
-### 2.4 Update sonner.tsx
-
-Replace next-themes usage with static dark theme:
-
-```typescript
-// Before
-import { useTheme } from "next-themes"
-const { theme = "system" } = useTheme()
-
-// After
-const theme = "dark"  // KITARA is always dark theme
-```
+- **Adicionar animacoes de entrada** -- fade-in nos cards e secoes ao carregar
+- **Scroll-to-top** -- ao trocar de aba no dashboard
+- **Melhorar responsividade das tabs** -- em mobile, usar scroll horizontal ou dropdown
+- **Loading states consistentes** -- padronizar skeleton vs spinner em toda a app
 
 ---
 
-## Phase 3: Fix vercel.json
+## Detalhes Tecnicos
 
-Update to include manifest.json headers:
+### Novos arquivos a criar:
+- `src/components/dashboard/AdminStatsGrid.tsx`
+- `src/components/dashboard/CreateTicketDialog.tsx`
+- `src/components/dashboard/CreateCouponDialog.tsx`
+- `src/components/dashboard/CreateInviteDialog.tsx`
+- `src/components/dashboard/SecurityStatsGrid.tsx`
+- `src/components/auth/AuthStepper.tsx` (indicador de progresso)
+- `src/components/common/SkeletonCard.tsx`
 
-```json
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/manifest.json",
-      "headers": [
-        { "key": "Content-Type", "value": "application/manifest+json" }
-      ]
-    }
-  ]
-}
-```
+### Arquivos a modificar:
+- `src/components/dashboard/AdminTab.tsx` -- reduzir para orquestrador
+- `src/components/dashboard/SecurityTab.tsx` -- condicionar abas por role, remover mock
+- `src/components/dashboard/ProductsTab.tsx` -- skeleton loading, dialog de confirmacao
+- `src/pages/Auth.tsx` -- adicionar AuthStepper e transicoes
+- `src/pages/Index.tsx` -- completar features, footer
+- `src/index.css` -- animacoes utilitarias (fade-in, slide-up)
 
----
-
-## Phase 4: Verify Zero supabase.from() in Frontend
-
-### Current State
-
-Search shows only comment references to `supabase.from()` (explaining what NOT to do).
-
-### Action Required
-
-Verify `getActiveTickets()` - this is the only function that may need adjustment. Options:
-
-**Option A**: Create a new RPC `get_active_tickets` via migration (preferred for security model consistency)
-
-**Option B**: Use `supabase.from('tickets').select().eq('is_active', true)` since tickets table has public read RLS policy
-
-Recommendation: **Option A** - Add the RPC to maintain zero-direct-access architecture.
-
----
-
-## Phase 5: Add Missing RPC (get_active_tickets)
-
-Create migration to add the missing RPC:
-
-```sql
-CREATE OR REPLACE FUNCTION public.get_active_tickets()
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  RETURN (
-    SELECT COALESCE(jsonb_agg(
-      jsonb_build_object(
-        'id', id,
-        'name', name,
-        'description', description,
-        'price', price,
-        'stock', stock,
-        'event_date', event_date,
-        'is_active', is_active,
-        'created_at', created_at
-      )
-    ), '[]'::jsonb)
-    FROM public.tickets
-    WHERE is_active = true AND stock > 0
-    ORDER BY created_at DESC
-  );
-END;
-$$;
-```
-
----
-
-## Files to Modify Summary
-
-| File | Action |
-|------|--------|
-| `src/components/dashboard/ProductsTab.tsx` | Add `applyElixir` import |
-| `src/lib/api.ts` | Remove unused functions, fix type casting |
-| `src/integrations/supabase/types.ts` | Add `get_active_tickets` RPC type |
-| `package.json` | Remove `next-themes` dependency |
-| `src/App.tsx` | Remove ThemeProvider, add dark theme useEffect |
-| `src/components/ui/sonner.tsx` | Replace useTheme with static dark theme |
-| `vercel.json` | Add manifest.json headers |
-| `supabase/migrations/xxx_add_get_active_tickets.sql` | Add missing RPC |
-
----
-
-## Expected Outcome After Implementation
-
-1. **Build passes** - All TypeScript errors resolved
-2. **Zero supabase.from()** - All data access via RPC or Edge Functions
-3. **No next-themes** - Theme controlled via localStorage/CSS
-4. **Vercel ready** - Proper configuration for deployment
-5. **Complete security model** - Fintech-grade architecture maintained
+### Regras mantidas:
+- Zero `supabase.from()` -- tudo via RPC/Edge Functions
+- Identidade visual KITARA inalterada (cores, fontes, glassmorphism)
+- Seguranca MFA obrigatoria preservada
+- Todas as chamadas de dados via `src/lib/api.ts`
 
