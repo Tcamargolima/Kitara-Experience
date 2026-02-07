@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, X, ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart } from "lucide-react";
 import {
   getActiveTickets,
   createOrder,
+  applyElixir,
   type Ticket,
   type ElixirValidation,
 } from "@/lib/api";
@@ -23,9 +29,10 @@ const ProductsTab = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [elixirCode, setElixirCode] = useState("");
-  const [elixirValidation, setElixirValidation] = useState<ElixirValidation | null>(null);
-  const [validatingElixir, setValidatingElixir] = useState(false);
+  const [elixirValidation, setElixirValidation] =
+    useState<ElixirValidation | null>(null);
   const [creatingOrder, setCreatingOrder] = useState(false);
+
   const { toast } = useToast();
 
   const fetchTickets = async () => {
@@ -33,7 +40,7 @@ const ProductsTab = () => {
     try {
       const data = await getActiveTickets();
       setTickets(data);
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro",
         description: "Não foi possível carregar os ingressos.",
@@ -47,31 +54,6 @@ const ProductsTab = () => {
   useEffect(() => {
     fetchTickets();
   }, []);
-
-  const handleApplyElixir = async () => {
-    if (!elixirCode.trim()) return;
-
-    setValidatingElixir(true);
-    try {
-      const result = await applyElixir(elixirCode);
-      setElixirValidation(result);
-
-      if (result.valid) {
-        toast({
-          title: "Código válido!",
-          description: `Desconto de ${result.discount_percent}% aplicado.`,
-        });
-      } else {
-        toast({
-          title: "Código inválido",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setValidatingElixir(false);
-    }
-  };
 
   const handleBuyTicket = async (ticket: Ticket) => {
     setSelectedTicket(ticket);
@@ -87,16 +69,19 @@ const ProductsTab = () => {
       if (result.success) {
         toast({
           title: "Pedido criado!",
-          description: `Valor: R$ ${result.final_price?.toFixed(2)}. Aguardando pagamento.`,
+          description: `Valor: R$ ${result.final_price?.toFixed(
+            2
+          )}. Aguardando pagamento.`,
         });
-        // Reset state
+
         setElixirCode("");
         setElixirValidation(null);
-        fetchTickets(); // Refresh stock
+        fetchTickets();
       } else {
         toast({
           title: "Erro",
-          description: result.message || "Não foi possível criar o pedido.",
+          description:
+            result.message || "Não foi possível criar o pedido.",
           variant: "destructive",
         });
       }
@@ -108,11 +93,19 @@ const ProductsTab = () => {
 
   const calculatePrice = (ticket: Ticket) => {
     let finalPrice = ticket.price;
+
     if (elixirValidation?.valid) {
       const discountPercent = elixirValidation.discount_percent || 0;
       const discountFixed = elixirValidation.discount_fixed || 0;
-      finalPrice = Math.max(ticket.price - (ticket.price * discountPercent / 100) - discountFixed, 0);
+
+      finalPrice = Math.max(
+        ticket.price -
+          (ticket.price * discountPercent) / 100 -
+          discountFixed,
+        0
+      );
     }
+
     return finalPrice;
   };
 
@@ -127,25 +120,42 @@ const ProductsTab = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-cinzel text-secondary">Ingressos</h2>
-        <p className="text-muted-foreground">Escolha seu ingresso e aplique códigos de desconto</p>
+        <h2 className="text-3xl font-cinzel text-secondary">
+          Ingressos
+        </h2>
+        <p className="text-muted-foreground">
+          Escolha seu ingresso e aplique códigos de desconto
+        </p>
       </div>
 
       {/* Elixir Code Input */}
       <Card className="kitara-card">
         <CardHeader>
-          <CardTitle className="text-lg font-cinzel text-secondary">Código Elixir (Desconto)</CardTitle>
-          <CardDescription>Tem um código de desconto? Aplique antes de comprar.</CardDescription>
+          <CardTitle className="text-lg font-cinzel text-secondary">
+            Código Elixir (Desconto)
+          </CardTitle>
+          <CardDescription>
+            Tem um código de desconto? Aplique antes de comprar.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ElixirCodeInput
             value={elixirCode}
-            onApplied={(res) => {
+            onApplied={async (res) => {
               setElixirValidation(res);
+
               if (res?.valid) {
-                toast({ title: "Código válido!", description: `Desconto de ${res.discount_percent}% aplicado.` });
+                setElixirCode(res.code || elixirCode);
+                toast({
+                  title: "Código válido!",
+                  description: `Desconto de ${res.discount_percent}% aplicado.`,
+                });
               } else if (res) {
-                toast({ title: "Código inválido", description: res.message, variant: "destructive" });
+                toast({
+                  title: "Código inválido",
+                  description: res.message,
+                  variant: "destructive",
+                });
               }
             }}
           />
@@ -156,7 +166,9 @@ const ProductsTab = () => {
       {tickets.length === 0 ? (
         <Card className="kitara-card">
           <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">Nenhum ingresso disponível no momento</p>
+            <p className="text-center text-muted-foreground">
+              Nenhum ingresso disponível no momento
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -164,21 +176,37 @@ const ProductsTab = () => {
           {tickets.map((ticket) => {
             const originalPrice = ticket.price;
             const finalPrice = calculatePrice(ticket);
-            const hasDiscount = elixirValidation?.valid && finalPrice < originalPrice;
+            const hasDiscount =
+              elixirValidation?.valid &&
+              finalPrice < originalPrice;
 
             return (
               <Card key={ticket.id} className="kitara-card">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-secondary">{ticket.name}</CardTitle>
-                    <Badge variant={ticket.stock > 0 ? "default" : "destructive"}>
-                      {ticket.stock > 0 ? `${ticket.stock} disponíveis` : "Esgotado"}
+                    <CardTitle className="text-secondary">
+                      {ticket.name}
+                    </CardTitle>
+                    <Badge
+                      variant={
+                        ticket.stock > 0
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
+                      {ticket.stock > 0
+                        ? `${ticket.stock} disponíveis`
+                        : "Esgotado"}
                     </Badge>
                   </div>
+
                   {ticket.description && (
-                    <CardDescription>{ticket.description}</CardDescription>
+                    <CardDescription>
+                      {ticket.description}
+                    </CardDescription>
                   )}
                 </CardHeader>
+
                 <CardContent className="space-y-4">
                   <div>
                     {hasDiscount ? (
@@ -199,10 +227,13 @@ const ProductsTab = () => {
 
                   <Button
                     onClick={() => handleBuyTicket(ticket)}
-                    disabled={ticket.stock <= 0 || creatingOrder}
+                    disabled={
+                      ticket.stock <= 0 || creatingOrder
+                    }
                     className="kitara-button w-full"
                   >
-                    {creatingOrder && selectedTicket?.id === ticket.id ? (
+                    {creatingOrder &&
+                    selectedTicket?.id === ticket.id ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Processando...
