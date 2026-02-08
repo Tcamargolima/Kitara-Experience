@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart, PackageOpen } from "lucide-react";
+import SkeletonCard from "@/components/common/SkeletonCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   getActiveTickets,
   createOrder,
@@ -32,6 +34,8 @@ const ProductsTab = () => {
   const [elixirValidation, setElixirValidation] =
     useState<ElixirValidation | null>(null);
   const [creatingOrder, setCreatingOrder] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingTicket, setPendingTicket] = useState<Ticket | null>(null);
 
   const { toast } = useToast();
 
@@ -55,39 +59,41 @@ const ProductsTab = () => {
     fetchTickets();
   }, []);
 
-  const handleBuyTicket = async (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setCreatingOrder(true);
+  const handleBuyTicket = (ticket: Ticket) => {
+    setPendingTicket(ticket);
+    setShowConfirm(true);
+  };
 
+  const handleConfirmPurchase = async () => {
+    if (!pendingTicket) return;
+    setSelectedTicket(pendingTicket);
+    setCreatingOrder(true);
+    setShowConfirm(false);
     try {
       const result = await createOrder(
-        ticket.id,
+        pendingTicket.id,
         1,
         elixirValidation?.valid ? elixirCode : undefined
       );
-
       if (result.success) {
         toast({
           title: "Pedido criado!",
-          description: `Valor: R$ ${result.final_price?.toFixed(
-            2
-          )}. Aguardando pagamento.`,
+          description: `Valor: R$ ${result.final_price?.toFixed(2)}. Aguardando pagamento.`,
         });
-
         setElixirCode("");
         setElixirValidation(null);
         fetchTickets();
       } else {
         toast({
           title: "Erro",
-          description:
-            result.message || "Não foi possível criar o pedido.",
+          description: result.message || "Não foi possível criar o pedido.",
           variant: "destructive",
         });
       }
     } finally {
       setCreatingOrder(false);
       setSelectedTicket(null);
+      setPendingTicket(null);
     }
   };
 
@@ -111,8 +117,10 @@ const ProductsTab = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 py-8 animate-fade-in">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
       </div>
     );
   }
@@ -164,15 +172,12 @@ const ProductsTab = () => {
 
       {/* Tickets Grid */}
       {tickets.length === 0 ? (
-        <Card className="kitara-card">
-          <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">
-              Nenhum ingresso disponível no momento
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
+          <PackageOpen className="h-12 w-12 text-muted-foreground mb-4 animate-fade-in" />
+          <p className="text-center text-muted-foreground text-lg">Nenhum ingresso disponível no momento.<br/>Volte em breve para novas opções!</p>
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
           {tickets.map((ticket) => {
             const originalPrice = ticket.price;
             const finalPrice = calculatePrice(ticket);
@@ -181,7 +186,7 @@ const ProductsTab = () => {
               finalPrice < originalPrice;
 
             return (
-              <Card key={ticket.id} className="kitara-card">
+              <Card key={ticket.id} className="kitara-card animate-fade-in animate-slide-up">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-secondary">
@@ -251,6 +256,29 @@ const ProductsTab = () => {
           })}
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent className="kitara-card animate-fade-in animate-slide-up">
+          <DialogHeader>
+            <DialogTitle>Confirmar Compra</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja comprar o ingresso <b>{pendingTicket?.name}</b>?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="text-lg font-bold text-primary mb-4">
+            Preço final: R$ {pendingTicket ? calculatePrice(pendingTicket).toFixed(2) : "-"}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirm(false)}>
+              Cancelar
+            </Button>
+            <Button className="kitara-button" onClick={handleConfirmPurchase} disabled={creatingOrder}>
+              Confirmar Compra
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
