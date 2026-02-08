@@ -172,8 +172,41 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Showcase … (segue igual, sem alterações) */}
-      {/* … */}
+      {/* FEATURES Section */}
+      <section className="relative py-16 md:py-24 animate-fade-in">
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="text-3xl md:text-4xl font-cinzel text-secondary text-center mb-12 animate-slide-up">FEATURES</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="kitara-card p-8 flex flex-col items-center animate-fade-in animate-slide-up">
+              <Shield className="h-10 w-10 text-secondary mb-4 animate-pulse-slow" />
+              <h3 className="font-cinzel text-xl text-secondary mb-2">Security</h3>
+              <p className="text-muted-foreground text-center">Advanced multi-factor authentication and encrypted access for uncompromising privacy.</p>
+            </div>
+            <div className="kitara-card p-8 flex flex-col items-center animate-fade-in animate-slide-up">
+              <Lock className="h-10 w-10 text-secondary mb-4 animate-pulse-slow" />
+              <h3 className="font-cinzel text-xl text-secondary mb-2">Exclusivity</h3>
+              <p className="text-muted-foreground text-center">Invitation-only membership ensures a curated, elite digital sanctuary.</p>
+            </div>
+            <div className="kitara-card p-8 flex flex-col items-center animate-fade-in animate-slide-up">
+              <Star className="h-10 w-10 text-secondary mb-4 animate-pulse-slow" />
+              <h3 className="font-cinzel text-xl text-secondary mb-2">Premium Experience</h3>
+              <p className="text-muted-foreground text-center">Luxury interface, seamless performance, and personalized features for every member.</p>
+            </div>
+            <div className="kitara-card p-8 flex flex-col items-center animate-fade-in animate-slide-up">
+              <Zap className="h-10 w-10 text-secondary mb-4 animate-pulse-slow" />
+              <h3 className="font-cinzel text-xl text-secondary mb-2">Support</h3>
+              <p className="text-muted-foreground text-center">Dedicated support team available 24/7 for all your needs and questions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Minimal Footer */}
+      <footer className="kitara-footer py-6 text-center animate-fade-in">
+        <div className="container mx-auto">
+          <span className="text-muted-foreground text-sm">KITARA &copy; 2026. <a href="mailto:support@kitara.digital" className="underline text-secondary">Support</a></span>
+        </div>
+      </footer>
     </div>
   );
 };
