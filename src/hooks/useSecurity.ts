@@ -8,6 +8,8 @@ interface SecurityState {
   loginAttempts: SecurityAttempt[];
   isLocked: boolean;
   lockUntil?: Date;
+  users?: Array<{ user: string; has2FA: boolean; lastLogin: Date; attempts: number; status: string }>;
+  logs?: Array<{ id: string; user: string; event: string; timestamp: Date; ip: string; device: string; status: string }>;
 }
 
 export const useSecurity = (userId?: string) => {
@@ -15,7 +17,50 @@ export const useSecurity = (userId?: string) => {
     has2FA: false,
     backupCodes: [],
     loginAttempts: [],
-    isLocked: false
+    isLocked: false,
+    users: [
+      { user: 'admin@moskino.circo', has2FA: true, lastLogin: new Date(), attempts: 0, status: 'active' },
+      { user: 'cliente1@email.com', has2FA: false, lastLogin: new Date(Date.now() - 60 * 60 * 1000), attempts: 3, status: 'warning' },
+      { user: 'cliente2@email.com', has2FA: false, lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000), attempts: 5, status: 'locked' }
+    ],
+    logs: [
+      {
+        id: '1',
+        user: 'admin@moskino.circo',
+        event: 'Login successful',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000),
+        ip: '192.168.1.100',
+        device: 'Chrome/Linux',
+        status: 'success'
+      },
+      {
+        id: '2',
+        user: 'cliente1@email.com',
+        event: '2FA verification failed',
+        timestamp: new Date(Date.now() - 15 * 60 * 1000),
+        ip: '10.0.0.50',
+        device: 'Safari/iOS',
+        status: 'failed'
+      },
+      {
+        id: '3',
+        user: 'cliente2@email.com',
+        event: 'Account locked',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000),
+        ip: '203.45.67.89',
+        device: 'Firefox/Windows',
+        status: 'blocked'
+      },
+      {
+        id: '4',
+        user: 'admin@moskino.circo',
+        event: '2FA enabled',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        ip: '192.168.1.100',
+        device: 'Chrome/Linux',
+        status: 'config'
+      }
+    ]
   });
   const [loading, setLoading] = useState(true);
 

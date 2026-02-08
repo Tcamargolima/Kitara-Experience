@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { Sparkles } from "lucide-react";
+import { Sparkles, ArrowLeft } from "lucide-react";
+import AuthStepper from "@/components/auth/AuthStepper";
 
 // Auth step components
 import { InviteCodeStep } from "@/components/auth/InviteCodeStep";
@@ -48,52 +49,78 @@ const Auth = () => {
   }
 
   const renderAuthStep = () => {
+    const stepProps = {
+      className: "animate-fade-in animate-slide-up"
+    };
     switch (authStep) {
       case "invite":
         return (
-          <InviteCodeStep
-            onValidInvite={setValidatedInvite}
-            onLoginClick={goToLogin}
-          />
+          <div {...stepProps}>
+            <InviteCodeStep
+              onValidInvite={setValidatedInvite}
+              onLoginClick={goToLogin}
+            />
+          </div>
         );
-      
       case "signup":
         return (
-          <SignUpStep
-            inviteCode={inviteCode || ""}
-            onSignUp={signUp}
-            onBackToInvite={() => window.location.reload()}
-          />
+          <div {...stepProps}>
+            <BackButton onClick={() => window.location.reload()} />
+            <SignUpStep
+              inviteCode={inviteCode || ""}
+              onSignUp={signUp}
+              onBackToInvite={() => window.location.reload()}
+            />
+          </div>
         );
-      
       case "login":
         return (
-          <LoginStep
-            onSignIn={signIn}
-            onBackToInvite={() => window.location.reload()}
-          />
+          <div {...stepProps}>
+            <BackButton onClick={() => window.location.reload()} />
+            <LoginStep
+              onSignIn={signIn}
+              onBackToInvite={() => window.location.reload()}
+            />
+          </div>
         );
-      
       case "mfa_setup":
         return (
-          <MFASetupStep
-            userEmail={user?.email || ""}
-            onComplete={completeMfaSetup}
-          />
+          <div {...stepProps}>
+            <BackButton onClick={() => goToLogin()} />
+            <MFASetupStep
+              userEmail={user?.email || ""}
+              onComplete={completeMfaSetup}
+            />
+          </div>
         );
-      
       case "mfa_verify":
         return (
-          <MFAVerifyStep
-            onComplete={completeMfaVerify}
-            onSignOut={signOut}
-          />
+          <div {...stepProps}>
+            <BackButton onClick={() => goToLogin()} />
+            <MFAVerifyStep
+              onComplete={completeMfaVerify}
+              onSignOut={signOut}
+            />
+          </div>
         );
-      
       default:
         return null;
     }
   };
+
+  // Consistent back button except for invite
+  function BackButton({ onClick }: { onClick: () => void }) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex items-center gap-2 mb-4 text-secondary hover:underline focus:outline-none"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Voltar</span>
+      </button>
+    );
+  }
 
   return (
     <div className="min-h-screen kitara-bg flex items-center justify-center p-4">
@@ -113,7 +140,9 @@ const Auth = () => {
           <h1 className="kitara-title text-4xl font-cinzel">KITARA</h1>
         </div>
 
-        {/* Current auth step */}
+        {/* Auth stepper */}
+        <AuthStepper currentStep={authStep === "login" ? "signup" : authStep} />
+        {/* Current auth step with animation and back button */}
         {renderAuthStep()}
       </div>
     </div>

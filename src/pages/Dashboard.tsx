@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, Shield, LayoutDashboard, Users, ShoppingCart, Ticket } from "lucide-react";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { SecurityTab } from "@/components/dashboard/SecurityTab";
+import SecurityTab from "@/components/dashboard/SecurityTab";
 import { UserManagementTab } from "@/components/dashboard/UserManagementTab";
 import ProductsTab from "@/components/dashboard/ProductsTab";
 import AdminTab from "@/components/dashboard/AdminTab";
