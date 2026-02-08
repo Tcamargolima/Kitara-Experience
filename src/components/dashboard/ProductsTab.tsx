@@ -100,11 +100,11 @@ const ProductsTab = () => {
 
       {/* Tickets Grid */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
           {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
         </div>
       ) : tickets.length === 0 ? (
-        <Card className="kitara-card">
+        <Card className="kitara-card animate-fade-in">
           <CardContent className="py-16 text-center space-y-4">
             <div className="relative inline-block">
               <Ticket className="h-16 w-16 mx-auto text-muted-foreground/30" />
@@ -115,28 +115,33 @@ const ProductsTab = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tickets.map((ticket) => (
-            <TicketCard
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+          {tickets.map((ticket, index) => (
+            <div
               key={ticket.id}
-              ticket={ticket}
-              elixirValidation={elixirValidation}
-              purchasing={purchasingId === ticket.id}
-              onBuy={(t) => setConfirmTicket(t)}
-            />
+              className="animate-slide-up"
+              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+            >
+              <TicketCard
+                ticket={ticket}
+                elixirValidation={elixirValidation}
+                purchasing={purchasingId === ticket.id}
+                onBuy={(t) => setConfirmTicket(t)}
+              />
+            </div>
           ))}
         </div>
       )}
 
       {/* Purchase Confirmation Dialog */}
       <Dialog open={!!confirmTicket} onOpenChange={(open) => !open && setConfirmTicket(null)}>
-        <DialogContent className="kitara-card">
+        <DialogContent className="kitara-card animate-slide-up">
           <DialogHeader>
             <DialogTitle className="font-cinzel text-secondary">Confirmar Compra</DialogTitle>
             <DialogDescription>Revise os detalhes antes de prosseguir</DialogDescription>
           </DialogHeader>
           {confirmTicket && (
-            <div className="space-y-4 py-2">
+            <div className="space-y-4 py-2 animate-fade-in">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ingresso</span>
                 <span className="font-medium">{confirmTicket.name}</span>
