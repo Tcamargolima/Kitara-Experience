@@ -1,324 +1,188 @@
-KITARA
-Exclusive Platform
+KITARA — Secure Experience Platform
 
-![Status](https://img.shields.io/badge/status-production%20ready-success) ![Version](https://img.shields.io/badge/version-1.0.0-blue)
+KITARA é uma plataforma de experiência premium construída com foco absoluto em segurança, governança e arquitetura limpa.
 
----
+Não é apenas um dashboard.
+Não é apenas um sistema de ingressos.
+Não é apenas autenticação com MFA.
 
-## 🌟 Visão Geral
+KITARA é uma plataforma arquitetada para operar sob regras rígidas de segurança e integridade, onde a interface nunca acessa dados diretamente e toda operação passa por camadas controladas de RPC e Edge Functions.
 
-MOSKINO é uma plataforma web moderna que transforma a experiência de compra e gestão de ingressos para eventos circenses. Com design vibrante inspirado no universo do circo, oferece uma interface intuitiva tanto para clientes quanto para administradores.
+🎯 Objetivo da Plataforma
 
-### ✨ Principais Características
+KITARA foi projetado para:
 
-- 🎫 **Gestão de Ingressos**: Sistema completo de criação, venda e validação
-- 💳 **Assinaturas**: Planos recorrentes com diferentes níveis de acesso
-- 🔐 **Segurança Robusta**: 2FA, RLS, logs de auditoria e bloqueio automático
-- 👥 **Sistema de Roles**: Admin, Cliente e Pendente com aprovação manual
-- 📱 **PWA Completo**: Instalável em iOS, Android e Desktop
-- 🎨 **Design Temático**: Interface vibrante e responsiva inspirada no circo
-- 🌐 **100% em Português**: Localização completa
+Oferecer uma experiência premium e exclusiva
 
----
+Operar com MFA obrigatório e auditoria completa
 
-## 🚀 Quick Start
+Garantir governança total sobre usuários, acessos e eventos
 
-### ⚠️ IMPORTANTE - Antes de Usar
+Trabalhar com venda de ingressos, cupons e convites de forma segura
 
-**Execute a migração SQL no Supabase!** Ver arquivo: [LEIA_PRIMEIRO.md](./LEIA_PRIMEIRO.md)
+Permitir crescimento do produto sem comprometer a arquitetura
 
-### Instalação Local
+A prioridade máxima do projeto é:
 
-```bash
-# Clone o repositório
-git clone <YOUR_GIT_URL>
+Segurança > Arquitetura > UX > Features
 
-# Navegue até o diretório
-cd <YOUR_PROJECT_NAME>
+🛡️ Princípio Central: Segurança Máxima
 
-# Instale as dependências
+A segurança do KITARA não é um recurso.
+Ela é a base do projeto.
+
+Regras invioláveis do frontend
+
+É PROIBIDO usar supabase.from() no frontend
+
+Todo acesso a dados acontece exclusivamente via:
+
+src/lib/api.ts
+
+RPC (Postgres Functions)
+
+Edge Functions
+
+MFA é obrigatório
+
+Logs de segurança são auditáveis
+
+Nenhuma informação sensível é manipulada na UI
+
+Se algum desenvolvedor quebrar essa regra, está quebrando a arquitetura do projeto.
+
+🧱 Arquitetura do Projeto
+src/
+ ├─ components/
+ │   ├─ dashboard/        → Tabs do painel (orquestradores)
+ │   ├─ auth/             → Fluxo MFA + Stepper
+ │   ├─ security/         → Configurações e verificação 2FA
+ │   └─ ui/               → shadcn/ui
+ │
+ ├─ hooks/                → Camada de estado e regras
+ ├─ lib/
+ │   ├─ api.ts            → ÚNICO ponto de acesso a dados
+ │   └─ security.ts       → Regras de segurança
+ │
+ ├─ pages/
+ │   ├─ Index.tsx         → Landing
+ │   ├─ Auth.tsx          → Fluxo de autenticação
+ │   └─ Dashboard.tsx     → Orquestração do painel
+
+🧭 Filosofia de Componentes
+
+Componentes grandes foram quebrados em módulos
+
+Nenhum arquivo crítico ultrapassa 200 linhas
+
+Dashboard tabs são orquestradores, não lógicas de negócio
+
+UI é desacoplada da regra de negócio
+
+🔐 Fluxo de Autenticação
+
+Fluxo visual com AuthStepper:
+
+invite → signup → mfa_setup → mfa_verify
+
+
+Com transições suaves, consistência visual e MFA obrigatório.
+
+🎟️ Sistema de Ingressos e Cupons
+
+Ingressos carregados via RPC
+
+Aplicação de cupom Elixir validado via RPC
+
+Criação de pedido com confirmação de compra
+
+Estoque atualizado em tempo real
+
+Nenhuma regra de preço no frontend
+
+🛠️ Stack Tecnológica
+
+React + TypeScript
+
+Vite
+
+Tailwind + shadcn/ui
+
+Supabase (RPC / Edge Functions)
+
+MFA baseado em TOTP
+
+Arquitetura zero-acesso-direto a banco
+
+🎨 Identidade Visual
+
+KITARA possui identidade visual própria e imutável:
+
+Tema Dark Luxury
+
+Tipografia Cinzel + Inter
+
+Glassmorphism
+
+Animações suaves globais
+
+Essa identidade não deve ser alterada.
+
+📜 Regras de Desenvolvimento (MANDATÓRIO)
+
+Nunca usar supabase.from() no frontend
+
+Nunca misturar regra de negócio com UI
+
+Nunca remover MFA
+
+Nunca alterar identidade visual
+
+Toda nova feature deve respeitar a arquitetura existente
+
+🚀 Como rodar localmente
 npm install
-
-# Execute a migração SQL no Supabase
-# Ver: CREATE_SECURE_ROLES_MIGRATION.sql
-
-# Inicie o servidor de desenvolvimento
 npm run dev
-```
 
-### Primeiro Acesso
 
-1. Execute a migração SQL no Supabase (**obrigatório**)
-2. Crie o primeiro admin:
-```sql
-INSERT INTO public.user_roles (user_id, role)
-VALUES (
-  (SELECT id FROM auth.users WHERE email = 'seu@email.com'),
-  'admin'
-);
-```
-3. Acesse `/auth` e faça login
+Build:
 
----
-
-## 📚 Documentação Completa
-
-| Documento | Descrição |
-|-----------|-----------|
-| **[GUIA_PRODUCAO.md](./GUIA_PRODUCAO.md)** | 🚀 Guia completo de deploy e checklist |
-| **[LEIA_PRIMEIRO.md](./LEIA_PRIMEIRO.md)** | ⚠️ **OBRIGATÓRIO** - Setup inicial |
-| **[TODAS_MIGRACOES_SQL.md](./TODAS_MIGRACOES_SQL.md)** | 🗄️ Histórico de migrações SQL |
-| **[CHANGELOG.md](./CHANGELOG.md)** | 📋 Histórico de versões |
-
----
-
-## 🏗️ Stack Tecnológico
-
-### Frontend
-- React 18.3 + TypeScript
-- Tailwind CSS com design system customizado
-- Vite (build otimizado)
-- React Router (navegação)
-- React Query (cache e estado)
-- shadcn/ui (componentes)
-
-### Backend
-- **Supabase** (backend completo)
-  - PostgreSQL
-  - Auth (Email + SMS)
-  - Edge Functions
-  - Realtime
-  - Storage
-
-### Segurança
-- Row Level Security (RLS)
-- 2FA com TOTP
-- Sistema de bloqueio automático
-- Logs de auditoria
-- Criptografia de dados
-
----
-
-## 🔒 Segurança
-
-✅ RLS em todas as tabelas  
-✅ 2FA com backup codes  
-✅ Bloqueio após 5 tentativas  
-✅ Logs completos de auditoria  
-✅ Sistema de roles server-side  
-✅ Validação de entrada  
-✅ Criptografia de dados sensíveis  
-
----
-
-## 👥 Sistema de Roles
-
-| Role | Descrição | Permissões |
-|------|-----------|------------|
-| **Pendente** | Novo usuário | Aguarda aprovação |
-| **Cliente** | Usuário aprovado | Compra ingressos, gerencia perfil |
-| **Admin** | Administrador | Todas as permissões + gestão de usuários |
-
----
-
-## 📱 PWA Features
-
-- ✅ Instalável em todos os dispositivos
-- ✅ Funciona offline
-- ✅ Service Worker otimizado
-- ✅ Push notifications (planejado)
-
-### Como Instalar
-
-- **iOS**: Safari → Compartilhar → Adicionar à Tela de Início
-- **Android**: Chrome → Menu → Instalar app
-- **Desktop**: Chrome/Edge → Ícone de instalação
-
----
-
-## 🎨 Design System
-
-### Cores
-
-```css
-/* Tema Claro */
---primary: #0d7377      /* Teal circense */
---secondary: #edc967    /* Dourado */
---accent: #d95f4c       /* Vermelho circo */
-```
-
-### Tipografia
-
-- **Títulos**: Bungee (impactante)
-- **Corpo**: Fredoka (amigável)
-
----
-
-## 🚀 Deploy
-
-### Via Lovable (Recomendado)
-
-1. Abra o projeto no [Lovable](https://lovable.dev/projects/84ff0ded-7025-42ae-a976-8f4263ce788f)
-2. Clique em **Share → Publish**
-3. Pronto! 🎉
-
-### Manual
-
-```bash
 npm run build
-# Deploy dist/ para seu host
-```
 
-**Ver guia completo:** [GUIA_PRODUCAO.md](./GUIA_PRODUCAO.md)
+📌 Estado Atual do Projeto
 
----
+O projeto passou por um refactor arquitetural completo:
 
-## 📊 Database Schema
+AdminTab modularizado
 
-### Principais Tabelas
+SecurityTab conectado à arquitetura real
 
-- `profiles` - Perfis de usuários
-- `user_roles` - Roles (admin/cliente/pendente)
-- `tickets` - Ingressos
-- `subscriptions` - Assinaturas
-- `access_logs` - Logs de acesso
-- `two_factor_settings` - Config 2FA
-- `backup_codes` - Códigos de recuperação
+Auth com stepper e UX profissional
 
----
+Products com skeleton e confirmação
 
-## 🛠️ Desenvolvimento
+Landing com features e footer
 
-### Scripts
+Animações globais padronizadas
 
-```bash
-npm run dev      # Desenvolvimento
-npm run build    # Build produção
-npm run preview  # Preview da build
-npm run lint     # Lint
-```
+🧠 Próxima Fase do Projeto
 
-### Editar o Projeto
+A próxima etapa é conectar toda a UI já refatorada com:
 
-**Use Lovable:**
-[Abrir no Lovable](https://lovable.dev/projects/84ff0ded-7025-42ae-a976-8f4263ce788f)
+Logs reais de segurança
 
-**Use sua IDE:**
-```bash
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-npm install
-npm run dev
-```
+Métricas reais
 
-**GitHub Codespaces:**
-Code → Codespaces → New codespace
+Governança real via RPC
 
----
+Sem alterar a UI, apenas fortalecendo a camada de dados.
 
-## 🧪 Testes
+🏁 Conclusão
 
-### Testar Autenticação
-1. Criar nova conta → Verificar role 'pendente'
-2. Admin aprova → Verificar mudança para 'cliente'
+KITARA não é um projeto comum.
 
-### Testar RLS
-1. Login como cliente
-2. Tentar acessar dados de outro usuário (deve falhar)
+É uma plataforma pensada para:
 
-### Testar 2FA
-1. Ativar 2FA → Logout → Login com código
-
----
-
-## 🆘 Suporte
-
-### Problemas Comuns
-
-**"requested path is invalid"**  
-→ Configure Site URL e Redirect URLs no Supabase Auth
-
-**Usuários não fazem login**  
-→ Execute a migração SQL e verifique roles
-
-**PWA não instala**  
-→ Verifique HTTPS e valide manifest.json
-
-### Recursos
-
-- 📖 [Docs Lovable](https://docs.lovable.dev)
-- 📖 [Docs Supabase](https://supabase.com/docs)
-- 💬 [Discord Lovable](https://discord.gg/lovable)
-
----
-
-## 🎯 Roadmap
-
-### v1.1 (Próximo)
-- [ ] QR Code para validação
-- [ ] Notificações push
-- [ ] Pagamentos (Stripe/PagSeguro)
-- [ ] Dashboard analytics
-
-### v1.2 (Futuro)
-- [ ] App mobile nativo
-- [ ] Sistema de cupons
-- [ ] Chat de suporte
-- [ ] Integração redes sociais
-
----
-
-## 📁 Estrutura
-
-```
-moskino/
-├── src/
-│   ├── components/      # Componentes React
-│   ├── hooks/          # Hooks customizados
-│   ├── pages/          # Páginas
-│   └── integrations/   # Supabase client
-├── supabase/
-│   ├── functions/      # Edge Functions
-│   └── config.toml     # Config
-├── public/             # Assets estáticos
-├── GUIA_PRODUCAO.md    # 🚀 Deploy
-├── LEIA_PRIMEIRO.md    # ⚠️ Setup
-└── README.md           # Este arquivo
-```
-
----
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
-3. Commit (`git commit -m 'Add AmazingFeature'`)
-4. Push (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
----
-
-## 📄 Licença
-
-Projeto proprietário e confidencial.
-
----
-
-## 🌟 Project Info
-
-**URL**: https://lovable.dev/projects/84ff0ded-7025-42ae-a976-8f4263ce788f
-
-**Supabase Project**: hsesjkiqblfqcehzbnhc
-
----
-
-## 🎉 Agradecimentos
-
-- [Lovable](https://lovable.dev) - Plataforma incrível
-- [Supabase](https://supabase.com) - Backend poderoso
-- [shadcn/ui](https://ui.shadcn.com) - Componentes elegantes
-- Comunidade open source
-
----
-
-**Feito com ❤️ para o mundo mágico do circo 🎪**
+Crescer sem perder controle
+Escalar sem virar bagunça
+Evoluir sem comprometer segurança
