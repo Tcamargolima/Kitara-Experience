@@ -52,7 +52,13 @@ export const useSecureAuth = () => {
     }
     
     if (!profile) {
-      return "login"; // Session but no profile (edge case)
+      // Session exists but no profile yet - resilience for edge cases
+      // On initial load (page refresh), trust the session
+      if (isInitialLoad) {
+        return "authenticated";
+      }
+      // Fresh login without profile - send to MFA setup (profile will be created)
+      return "mfa_setup";
     }
     
     if (!profile.mfa_enabled) {
