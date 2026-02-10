@@ -25,8 +25,8 @@ const AdminTab = () => {
     try {
       const [s, u, t] = await Promise.all([adminGetStats(), adminGetUsers(), adminGetTickets()]);
       setStats(s);
-      setUsers(u);
-      setTickets(t);
+      setUsers(Array.isArray(u) ? u : []);
+      setTickets(Array.isArray(t) ? t : []);
     } catch {
       toast({ title: "Erro", description: "Não foi possível carregar os dados.", variant: "destructive" });
     } finally {
