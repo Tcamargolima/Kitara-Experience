@@ -326,7 +326,7 @@ export type Database = {
       security_events: {
         Row: {
           created_at: string | null
-          event_type: string
+          event_type: string | null
           id: string
           ip_address: string | null
           metadata: Json | null
@@ -337,7 +337,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          event_type: string
+          event_type?: string | null
           id?: string
           ip_address?: string | null
           metadata?: Json | null
@@ -348,7 +348,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          event_type?: string
+          event_type?: string | null
           id?: string
           ip_address?: string | null
           metadata?: Json | null
