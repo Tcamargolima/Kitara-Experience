@@ -16,7 +16,13 @@ import {
   Lock
 } from "lucide-react";
 import { TwoFactorVerify } from "@/components/security/TwoFactorVerify";
-import { SecurityService, DEFAULT_ADMIN_CREDENTIALS } from "@/lib/security";
+import { SecurityService } from "@/lib/security";
+
+const DEFAULT_ADMIN_CREDENTIALS = {
+  email: "admin@kitara.com",
+  username: "admin",
+  password: "Admin@123!",
+};
 import { useSecurity } from "@/hooks/useSecurity";
 import { useToast } from "@/hooks/use-toast";
 
