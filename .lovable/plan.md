@@ -1,78 +1,72 @@
 
 
-# Refatoracao Completa: UI / Componentes / UX / Dashboard / Tickets / Flows
+# Corrigir Login: Tela Presa no Auth Apos Login Bem-Sucedido
 
-## Resumo
+## Diagnostico
 
-Refatoracao profunda focada em melhorar a experiencia do usuario, modularizar componentes grandes, polir a identidade visual KITARA e otimizar os fluxos de autenticacao e compra.
+Foram identificadas **2 causas raiz** para o problema:
+
+### Causa 1: Perfil do usuario nao existe na tabela correta
+- A funcao RPC `get_my_profile` consulta a tabela `user_profiles`
+- Porem, o usuario admin existe apenas na tabela `profiles` (tabela diferente)
+- A tabela `user_profiles` esta **vazia** -- nenhum registro
+- Resultado: `get_my_profile` sempre retorna `null`
+- Quando o perfil e null, o hook `useSecureAuth` entra em loop: define "authenticated" no `signIn`, mas ao re-montar o componente, `determineAuthStep` recebe profile=null e volta para "login"
+
+### Causa 2: RPC `log_security_event` falha com erro 400
+- A tabela `security_events` tem duas colunas: `type` e `event_type`
+- A RPC insere dados na coluna `type`, mas a coluna `event_type` e NOT NULL e nao tem valor padrao
+- Resultado: toda tentativa de log falha com: `null value in column "event_type" violates not-null constraint`
+- Isso nao bloqueia o login diretamente, mas gera erros no console
+
+### Nota: Os erros de CORS
+Os erros de CORS com `lovable.dev/auth-bridge` e `manifest.json` sao da infraestrutura de preview do Lovable e **nao afetam** o funcionamento do app. Podem ser ignorados.
 
 ---
 
-## 1. Quebrar o AdminTab (454 linhas) em subcomponentes
+## Plano de Correcao
 
-O `AdminTab.tsx` concentra stats, 3 dialogs de criacao e 2 sub-tabs -- tudo em um unico arquivo de 454 linhas.
+### Passo 1: Migrar dados do admin para `user_profiles`
+Inserir o usuario admin na tabela `user_profiles` para que o RPC `get_my_profile` funcione:
 
-- **Extrair `AdminStatsGrid`** -- grid de 4 cards de metricas (usuarios, pedidos, receita, ingressos)
-- **Extrair `CreateTicketDialog`** -- dialog de criacao de ingresso com formulario
-- **Extrair `CreateCouponDialog`** -- dialog de criacao de cupom Elixir
-- **Extrair `CreateInviteDialog`** -- dialog de geracao de convite com exibicao do codigo gerado
-- **AdminTab reduzido** -- orquestra os subcomponentes, chama `fetchData` e passa dados
+```sql
+INSERT INTO public.user_profiles (id, email, display_name, mfa_enabled)
+SELECT id, email, 'Admin KITARA', false
+FROM public.profiles
+WHERE id = '2cc77288-7313-412a-9947-d6fcd50bc56b'
+ON CONFLICT (id) DO NOTHING;
+```
 
-## 2. Melhorar a SecurityTab (327 linhas)
+### Passo 2: Corrigir a tabela `security_events`
+Tornar a coluna `event_type` nullable ou remover (ja que a RPC usa `type`):
 
-- **Remover dados mock** -- substituir por chamadas RPC reais (ou placeholders claros com mensagem "dados reais em breve")
-- **Condicionar abas admin-only** -- as abas "Gerenciar Usuarios" e "Logs de Seguranca" so devem aparecer para admins; clientes veem apenas "Minhas Configuracoes"
-- **Extrair `SecurityStatsGrid`** -- os 3 cards de metricas no topo
+```sql
+ALTER TABLE public.security_events ALTER COLUMN event_type DROP NOT NULL;
+```
 
-## 3. Melhorar a Landing Page (Index.tsx)
+### Passo 3: Adicionar resiliencia no frontend
+Atualizar `useSecureAuth.ts` para tratar o caso em que o perfil e null apos login bem-sucedido. Se o usuario tem sessao valida mas perfil null, deve ir para "authenticated" em vez de voltar para "login" no `determineAuthStep`:
 
-- **Adicionar secao de features** -- o comentario na linha 175 indica `{/* Features Showcase ... (segue igual, sem alteracoes) */}` mas o conteudo foi cortado; garantir que exista uma secao de features completa com 3-4 cards (Seguranca, Exclusividade, Experiencia Premium, Suporte)
-- **Melhorar responsividade** -- ajustar tamanhos de tipografia para telas menores
-- **Adicionar footer minimalista** -- com copyright e link para suporte
+- No metodo `determineAuthStep`: se session existe mas profile e null, retornar `"mfa_setup"` em vez de `"login"` (ou "authenticated" se for initial load)
+- Isso evita que o loop aconteca mesmo quando o perfil ainda nao foi criado
 
-## 4. Polir o fluxo de Auth
-
-- **Adicionar transicoes suaves** -- ao trocar entre steps (invite -> signup -> mfa_setup -> mfa_verify), usar animacao de fade/slide
-- **Melhorar feedback visual** -- indicador de progresso (stepper) mostrando em qual etapa o usuario esta (1. Convite, 2. Cadastro, 3. MFA, 4. Verificacao)
-- **Botao de voltar consistente** -- em todas as etapas exceto a primeira
-
-## 5. Melhorar ProductsTab e TicketCard
-
-- **Estado vazio mais atraente** -- ilustracao ou animacao ao inves de apenas icone + texto
-- **Skeleton loading** -- mostrar cards skeleton enquanto carrega, ao inves de spinner generico
-- **Feedback de compra melhorado** -- dialog de confirmacao antes de comprar, com resumo do pedido
-
-## 6. Melhorias globais de UX
-
-- **Adicionar animacoes de entrada** -- fade-in nos cards e secoes ao carregar
-- **Scroll-to-top** -- ao trocar de aba no dashboard
-- **Melhorar responsividade das tabs** -- em mobile, usar scroll horizontal ou dropdown
-- **Loading states consistentes** -- padronizar skeleton vs spinner em toda a app
+### Passo 4: Garantir trigger de criacao automatica de perfil
+Criar um trigger no banco que insere automaticamente um registro em `user_profiles` quando um novo usuario se registra no Supabase Auth, para evitar que esse problema ocorra com novos usuarios.
 
 ---
 
 ## Detalhes Tecnicos
 
-### Novos arquivos a criar:
-- `src/components/dashboard/AdminStatsGrid.tsx`
-- `src/components/dashboard/CreateTicketDialog.tsx`
-- `src/components/dashboard/CreateCouponDialog.tsx`
-- `src/components/dashboard/CreateInviteDialog.tsx`
-- `src/components/dashboard/SecurityStatsGrid.tsx`
-- `src/components/auth/AuthStepper.tsx` (indicador de progresso)
-- `src/components/common/SkeletonCard.tsx`
-
 ### Arquivos a modificar:
-- `src/components/dashboard/AdminTab.tsx` -- reduzir para orquestrador
-- `src/components/dashboard/SecurityTab.tsx` -- condicionar abas por role, remover mock
-- `src/components/dashboard/ProductsTab.tsx` -- skeleton loading, dialog de confirmacao
-- `src/pages/Auth.tsx` -- adicionar AuthStepper e transicoes
-- `src/pages/Index.tsx` -- completar features, footer
-- `src/index.css` -- animacoes utilitarias (fade-in, slide-up)
+- `src/hooks/useSecureAuth.ts` -- ajustar `determineAuthStep` para resiliencia com profile null
+
+### Migracoes SQL necessarias:
+1. INSERT na `user_profiles` para o admin existente
+2. ALTER TABLE `security_events` para corrigir NOT NULL em `event_type`
+3. CREATE TRIGGER para auto-criar perfil em `user_profiles` no signup
 
 ### Regras mantidas:
-- Zero `supabase.from()` -- tudo via RPC/Edge Functions
-- Identidade visual KITARA inalterada (cores, fontes, glassmorphism)
-- Seguranca MFA obrigatoria preservada
-- Todas as chamadas de dados via `src/lib/api.ts`
+- Zero `supabase.from()` -- tudo via RPC
+- Seguranca MFA preservada
+- Identidade KITARA inalterada
 
