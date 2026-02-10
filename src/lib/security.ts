@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import * as OTPAuth from "otpauth";
 
 export interface SecurityAttempt {
   type: 'login' | '2fa';
@@ -10,12 +11,6 @@ export interface PasswordValidation {
   isValid: boolean;
   errors: string[];
 }
-
-export const DEFAULT_ADMIN_CREDENTIALS = {
-  email: "admin@kitara.com",
-  username: "admin",
-  password: "Admin@123!",
-};
 
 export class SecurityService {
   static createSecurityAttempt(type: 'login' | '2fa', success: boolean): SecurityAttempt {
@@ -67,14 +62,19 @@ export class SecurityService {
   }
 
   static generateTOTPSecret(email: string): { secret: string; qrCodeUri: string } {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    let secret = '';
-    for (let i = 0; i < 32; i++) {
-      secret += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    const issuer = 'KITARA';
-    const qrCodeUri = `otpauth://totp/${issuer}:${encodeURIComponent(email)}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
-    return { secret, qrCodeUri };
+    const totp = new OTPAuth.TOTP({
+      issuer: 'KITARA',
+      label: email,
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: new OTPAuth.Secret({ size: 20 }),
+    });
+
+    return {
+      secret: totp.secret.base32,
+      qrCodeUri: totp.toString(),
+    };
   }
 
   static generateBackupCodes(count = 8): string[] {
@@ -88,7 +88,23 @@ export class SecurityService {
   }
 
   static verifyTOTP(code: string, secret: string): boolean {
-    // Server-side verification via RPC in production
-    return code.length === 6 && /^\d{6}$/.test(code);
+    try {
+      if (code.length !== 6 || !/^\d{6}$/.test(code)) return false;
+
+      const totp = new OTPAuth.TOTP({
+        issuer: 'KITARA',
+        algorithm: 'SHA1',
+        digits: 6,
+        period: 30,
+        secret: OTPAuth.Secret.fromBase32(secret),
+      });
+
+      // Returns delta (number) if valid, null if invalid. Window=1 allows ±1 time step.
+      const delta = totp.validate({ token: code, window: 1 });
+      return delta !== null;
+    } catch (error) {
+      console.error('TOTP verification error:', error);
+      return false;
+    }
   }
 }

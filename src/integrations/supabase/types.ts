@@ -573,8 +573,27 @@ export type Database = {
         Returns: undefined
       }
       admin_get_stats: { Args: never; Returns: Json }
-      admin_get_tickets: { Args: never; Returns: Json }
-      admin_get_users: { Args: never; Returns: Json }
+      admin_get_tickets: {
+        Args: never
+        Returns: {
+          created_at: string
+          customer_email: string
+          event_name: string
+          id: string
+          quantity: number
+          status: string
+        }[]
+      }
+      admin_get_users: {
+        Args: never
+        Returns: unknown[]
+        SetofOptions: {
+          from: "*"
+          to: "users"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       apply_elixir: { Args: { p_code: string }; Returns: Json }
       consume_invite:
         | { Args: { p_code: string }; Returns: boolean }
