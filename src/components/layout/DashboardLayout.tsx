@@ -25,15 +25,15 @@ const DashboardLayout = ({ children, subtitle }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen kitara-bg">
       <header className="kitara-header sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img
               src="/kitara/assets/logo.png"
               alt="KITARA logo"
-              className="h-10 w-10 drop-shadow-[0_0_8px_hsl(var(--primary)/0.3)]"
+              className="h-12 w-12 drop-shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
             />
             <div>
-              <h1 className="text-xl md:text-2xl font-cinzel text-secondary tracking-wide">
+              <h1 className="text-xl md:text-2xl font-cinzel text-secondary tracking-tight font-semibold">
                 KITARA
               </h1>
               <p className="text-xs text-muted-foreground">{subtitle}</p>
@@ -53,7 +53,7 @@ const DashboardLayout = ({ children, subtitle }: DashboardLayoutProps) => {
               variant="outline"
               size="sm"
               onClick={handleSignOut}
-              className="gap-2 kitara-button-outline"
+              className="gap-2 kitara-button-outline transition-all duration-300"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sair</span>
@@ -62,7 +62,7 @@ const DashboardLayout = ({ children, subtitle }: DashboardLayoutProps) => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-8">
+      <main className="container mx-auto px-6 py-8 md:py-10">
         {children}
       </main>
 

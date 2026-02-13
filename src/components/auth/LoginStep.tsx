@@ -60,7 +60,7 @@ export const LoginStep = ({ onSignIn, onBackToInvite }: LoginStepProps) => {
   };
 
   return (
-    <Card className="kitara-card w-full max-w-md mx-auto">
+    <Card className="kitara-card w-full max-w-md mx-auto rounded-3xl">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
           <LogIn className="h-12 w-12 text-secondary" />
@@ -73,7 +73,7 @@ export const LoginStep = ({ onSignIn, onBackToInvite }: LoginStepProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

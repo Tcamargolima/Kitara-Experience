@@ -54,10 +54,10 @@ const Dashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="tickets" className="mt-6">
+          <TabsContent value="tickets" className="mt-8">
             <ProductsTab />
           </TabsContent>
-          <TabsContent value="security" className="mt-6">
+          <TabsContent value="security" className="mt-8">
             <SecurityTab userId={user?.id || ""} />
           </TabsContent>
         </Tabs>
@@ -88,16 +88,16 @@ const Dashboard = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6">
+        <TabsContent value="overview" className="mt-8">
           <AdminTab />
         </TabsContent>
-        <TabsContent value="products" className="mt-6">
+        <TabsContent value="products" className="mt-8">
           <ProductsTab />
         </TabsContent>
-        <TabsContent value="users" className="mt-6">
+        <TabsContent value="users" className="mt-8">
           <UserManagementTab />
         </TabsContent>
-        <TabsContent value="security" className="mt-6">
+        <TabsContent value="security" className="mt-8">
           <SecurityTab userId={user?.id || ""} />
         </TabsContent>
       </Tabs>

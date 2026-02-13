@@ -76,7 +76,7 @@ export const MFAVerifyStep = ({ onComplete, onSignOut }: MFAVerifyStepProps) => 
   };
 
   return (
-    <Card className="kitara-card w-full max-w-md mx-auto">
+    <Card className="kitara-card w-full max-w-md mx-auto rounded-3xl">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
           <ShieldCheck className="h-12 w-12 text-secondary" />
@@ -89,7 +89,7 @@ export const MFAVerifyStep = ({ onComplete, onSignOut }: MFAVerifyStepProps) => 
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleVerify} className="space-y-4">
+        <form onSubmit={handleVerify} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="mfa-token">Código de Verificação</Label>
             <Input

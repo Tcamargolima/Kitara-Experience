@@ -105,15 +105,15 @@
   }
 
   .kitara-button {
-    @apply relative overflow-hidden rounded-lg font-bold text-lg px-8 py-4 transition-all duration-300;
+    @apply relative overflow-hidden rounded-full font-bold text-lg px-8 py-4 transition-all duration-300;
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)) 60%);
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.4), 0 0 60px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.25);
     color: hsl(var(--primary-foreground));
   }
 
   .kitara-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 40px hsl(var(--primary) / 0.6), 0 0 80px hsl(var(--primary) / 0.3);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.4), 0 0 60px hsl(var(--primary) / 0.15);
   }
 
   .kitara-button-outline {
@@ -121,14 +121,13 @@
   }
 
   .kitara-card {
-    @apply relative rounded-xl backdrop-blur-md;
+    @apply relative rounded-2xl backdrop-blur-md;
     background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card)) 80%);
-    border: 1px solid hsl(var(--secondary) / 0.2);
-    box-shadow: 0 4px 20px hsl(var(--primary) / 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .kitara-input {
-    @apply bg-input border-secondary/20 focus:border-secondary/40 focus:ring-primary/20;
+    @apply bg-input rounded-xl border-white/10 focus:border-secondary/40 focus:ring-primary/20;
   }
 
   .kitara-bg {
@@ -155,9 +154,9 @@
   }
 
   .kitara-header {
-    @apply border-b backdrop-blur-sm;
-    background: hsl(var(--background) / 0.9);
-    border-color: hsl(var(--secondary) / 0.1);
+    @apply border-b backdrop-blur-md;
+    background: hsl(var(--background) / 0.8);
+    border-color: rgba(255, 255, 255, 0.06);
   }
 
   .kitara-footer {
@@ -166,8 +165,14 @@
   }
 
   .kitara-tabs {
-    @apply bg-card/50 backdrop-blur-sm rounded-lg p-1;
-    border: 1px solid hsl(var(--secondary) / 0.1);
+    @apply bg-card/50 backdrop-blur-md rounded-2xl p-1.5;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .kitara-glass {
+    @apply backdrop-blur-md rounded-2xl;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .kitara-tab {
