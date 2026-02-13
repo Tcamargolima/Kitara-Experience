@@ -67,10 +67,10 @@ const ProductsTab = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h2 className="text-3xl font-cinzel text-secondary">Ingressos</h2>
-        <p className="text-muted-foreground">Escolha seu ingresso e aplique códigos de desconto</p>
+        <h2 className="text-3xl font-cinzel text-secondary font-semibold tracking-tight">Ingressos</h2>
+        <p className="text-sm text-muted-foreground mt-1">Escolha seu ingresso e aplique códigos de desconto</p>
       </div>
 
       {/* Elixir Code */}
@@ -100,7 +100,7 @@ const ProductsTab = () => {
 
       {/* Tickets Grid */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
           {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
         </div>
       ) : tickets.length === 0 ? (
@@ -115,7 +115,7 @@ const ProductsTab = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
           {tickets.map((ticket, index) => (
             <div
               key={ticket.id}

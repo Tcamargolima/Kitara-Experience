@@ -23,7 +23,7 @@ const AuthStepper = ({ currentStep }: AuthStepperProps) => {
   if (currentStep === "authenticated") return null;
 
   return (
-    <div className="flex items-center justify-center gap-1 mb-8">
+    <div className="flex items-center justify-center gap-2 mb-10">
       {STEPS.map((step, i) => {
         const isCompleted = i < current;
         const isActive = i === current;

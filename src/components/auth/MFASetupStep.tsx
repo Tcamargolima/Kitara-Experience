@@ -109,7 +109,7 @@ export const MFASetupStep = ({ userEmail, onComplete }: MFASetupStepProps) => {
   };
 
   return (
-    <Card className="kitara-card w-full max-w-md mx-auto">
+    <Card className="kitara-card w-full max-w-md mx-auto rounded-3xl">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
           <Shield className="h-12 w-12 text-secondary" />

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { Sparkles } from "lucide-react";
 import AuthStepper from "@/components/auth/AuthStepper";
 import { InviteCodeStep } from "@/components/auth/InviteCodeStep";
 import { SignUpStep } from "@/components/auth/SignUpStep";
@@ -58,12 +57,9 @@ const Auth = () => {
     <div className="min-h-screen kitara-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo header */}
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-20 w-20 drop-shadow-lg" />
-              <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
-            </div>
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <img src="/kitara/assets/logo.png" alt="KITARA logo" className="h-20 w-20 drop-shadow-[0_0_20px_rgba(197,160,89,0.2)]" />
           </div>
           <h1 className="kitara-title text-4xl font-cinzel">KITARA</h1>
         </div>
